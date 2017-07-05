@@ -1,0 +1,40 @@
+package adventureworks.cronJobs;
+
+import org.quartz.Job;
+import org.quartz.JobExecutionContext;
+import org.quartz.JobExecutionException;
+
+public class EtlJob implements Job{
+
+	public void execute(JobExecutionContext arg0) throws JobExecutionException {
+		// TODO Auto-generated method stub
+		
+		
+		
+	
+		
+	
+		
+	}
+	
+	
+	public void synchronizeDimensions(){
+		
+	}
+	
+	public void extractOperationalData(){
+		
+	}
+	
+
+	public void transformOperationalData(){
+	
+
+	}
+	
+	public void loadOperationalData(){
+	
+	}
+
+	
+}

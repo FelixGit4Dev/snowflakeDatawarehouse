@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence persistence_1_0.xsd" version="1.0">
+    <persistence-unit name="dwhSource" transaction-type="JTA">
+    <exclude-unlisted-classes>true</exclude-unlisted-classes>
+          <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+            <jta-data-source>java:jboss/datasources/DwhSource</jta-data-source>
+            <class>adventureworks.entitySource.Address</class>
+            <class>adventureworks.entitySource.Contact</class>
+            <class>adventureworks.entitySource.Countryregion</class>
+            <class>adventureworks.entitySource.Countryregioncurrency</class>
+            <class>adventureworks.entitySource.CountryregioncurrencyPK</class>
+            <class>adventureworks.entitySource.Currency</class>
+            <class>adventureworks.entitySource.Currencyrate</class>
+            <class>adventureworks.entitySource.Customer</class>
+            <class>adventureworks.entitySource.Customeraddress</class>
+            <class>adventureworks.entitySource.CustomeraddressPK</class>
+            <class>adventureworks.entitySource.Employee</class>
+            <class>adventureworks.entitySource.Individual</class>
+            <class>adventureworks.entitySource.Product</class>
+            <class>adventureworks.entitySource.Productcategory</class>
+            <class>adventureworks.entitySource.Productsubcategory</class>
+            <class>adventureworks.entitySource.Salesorderdetail</class>
+            <class>adventureworks.entitySource.SalesorderdetailPK</class>
+            <class>adventureworks.entitySource.Salesorderheader</class>
+            <class>adventureworks.entitySource.Salesperson</class>
+            <class>adventureworks.entitySource.Salesreason</class>
+            <class>adventureworks.entitySource.Salesterritory</class>
+            <class>adventureworks.entitySource.Shipmethod</class>
+            <class>adventureworks.entitySource.Stateprovince</class>
+            <class>adventureworks.entitySource.Store</class>
+            <class>adventureworks.entitySource.Unitmeasure</class>
+
+   
+
+        <properties>
+         <property name="hibernate.show_sql" value="true" />
+        </properties>  
+   </persistence-unit>  
+   
+   
+   
+   
+       
+        <persistence-unit name="dwhtarget" transaction-type="JTA">
+          <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+  <jta-data-source>java:jboss/datasources/DwhTarget</jta-data-source>
+        <properties>
+ <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
+            <property name="hibernate.show_sql" value="true" />
+<property name="hibernate.hbm2ddl.auto" value="create-drop" />
+        </properties>      
+    </persistence-unit>
+    
+</persistence> 
