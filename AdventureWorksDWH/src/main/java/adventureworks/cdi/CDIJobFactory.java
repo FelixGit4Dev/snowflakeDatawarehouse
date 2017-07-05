@@ -17,6 +17,7 @@ public class CDIJobFactory implements JobFactory {
 
     @Inject
    private BeanManager beanManager;
+    String test ="test";
 
 
     public Job newJob(TriggerFiredBundle bundle, Scheduler scheduler) throws SchedulerException{
