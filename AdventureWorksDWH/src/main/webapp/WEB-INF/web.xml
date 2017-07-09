@@ -10,5 +10,7 @@
 			org.quartz.ee.servlet.QuartzInitializerListener
 		</listener-class>
 	</listener> 
-  
+  <listener>
+    <listener-class>adventureworks.listener.Config</listener-class>
+</listener>
 </web-app>

@@ -19,8 +19,10 @@ public class TransactionInterceptor implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-@Resource
+@Resource(lookup="java:jboss/UserTransaction")
 private UserTransaction userTransaction;
+
+
 
 
 @AroundInvoke

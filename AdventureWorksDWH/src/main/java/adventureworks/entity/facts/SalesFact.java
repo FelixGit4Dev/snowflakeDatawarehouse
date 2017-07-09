@@ -1,6 +1,7 @@
 package adventureworks.entity.facts;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
 import javax.annotation.Generated;
 import javax.persistence.Entity;
@@ -21,10 +22,148 @@ public class SalesFact implements Serializable{
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 private	long saleFactId;
+	
+	
 private	 long shippingMethodId;
+
 private	long billToAdressId;
+
 private	long salesReasonId;
+
 private	long productId;
+
 private long territoryId;
+
+private long orderDateId;
+
+private long dueDateId;
+
+private long shipdateId;
+
+private long customerId;
+
+private long salesPersonId;
+
+
+//Kennzahlen
+private int quantity;
+private double unitPrice;
+private double taxAmt;
+private double discount;
+private double total;
+
+
+public SalesFact() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+public SalesFact(long shippingMethodId, long billToAdressId, long salesReasonId, long productId, long territoryId, long orderDateId,
+		long dueDateId, long shipdateId) {
+	super();
+	this.shippingMethodId = shippingMethodId;
+	this.billToAdressId = billToAdressId;
+	this.salesReasonId = salesReasonId;
+	this.productId = productId;
+	this.territoryId = territoryId;
+	this.orderDateId=orderDateId;
+	this.dueDateId=dueDateId;
+	this.shipdateId=shipdateId;
+}
+public long getShippingMethodId() {
+	return shippingMethodId;
+}
+public void setShippingMethodId(long shippingMethodId) {
+	this.shippingMethodId = shippingMethodId;
+}
+public long getBillToAdressId() {
+	return billToAdressId;
+}
+public void setBillToAdressId(long billToAdressId) {
+	this.billToAdressId = billToAdressId;
+}
+public long getSalesReasonId() {
+	return salesReasonId;
+}
+public void setSalesReasonId(long salesReasonId) {
+	this.salesReasonId = salesReasonId;
+}
+public long getProductId() {
+	return productId;
+}
+public void setProductId(long productId) {
+	this.productId = productId;
+}
+public long getTerritoryId() {
+	return territoryId;
+}
+public void setTerritoryId(long territoryId) {
+	this.territoryId = territoryId;
+}
+public long getSaleFactId() {
+	return saleFactId;
+}
+public long getOrderDateId() {
+	return orderDateId;
+}
+public void setOrderDateId(long orderDateId) {
+	this.orderDateId = orderDateId;
+}
+public long getDueDateId() {
+	return dueDateId;
+}
+public void setDueDateId(long dueDateId) {
+	this.dueDateId = dueDateId;
+}
+public long getShipdateId() {
+	return shipdateId;
+}
+public void setShipdateId(long shipdateId) {
+	this.shipdateId = shipdateId;
+}
+public void setSaleFactId(long saleFactId) {
+	this.saleFactId = saleFactId;
+}
+public int getQuantity() {
+	return quantity;
+}
+public void setQuantity(int quantity) {
+	this.quantity = quantity;
+}
+public double getUnitPrice() {
+	return unitPrice;
+}
+public void setUnitPrice(double unitPrice) {
+	this.unitPrice = unitPrice;
+}
+public double getTaxAmt() {
+	return taxAmt;
+}
+public void setTaxAmt(double taxAmt) {
+	this.taxAmt = taxAmt;
+}
+public double getDiscount() {
+	return discount;
+}
+public void setDiscount(double discount) {
+	this.discount = discount;
+}
+public double getTotal() {
+	return total;
+}
+public void setTotal(double total) {
+	this.total = total;
+}
+public long getCustomerId() {
+	return customerId;
+}
+public void setCustomerId(long customerId) {
+	this.customerId = customerId;
+}
+public long getSalesPersonId() {
+	return salesPersonId;
+}
+public void setSalesPersonId(long salesPersonId) {
+	this.salesPersonId = salesPersonId;
+}
 
 }

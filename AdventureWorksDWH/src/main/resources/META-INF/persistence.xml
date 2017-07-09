@@ -1,9 +1,55 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence persistence_1_0.xsd" version="1.0">
+        <persistence-unit name="dwhTarget" transaction-type="JTA">
+         <exclude-unlisted-classes>true</exclude-unlisted-classes>
+          <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+  <jta-data-source>java:jboss/datasources/DwhTarget</jta-data-source>
+              <class>adventureworks.entity.maps.Category_MAP</class>
+            <class>adventureworks.entity.maps.City_MAP</class>
+            <class>adventureworks.entity.maps.Country_MAP</class>
+            <class>adventureworks.entity.maps.Customer_MAP</class>
+            <class>adventureworks.entity.maps.Product_MAP</class>
+            <class>adventureworks.entity.maps.SalesChannel_MAP</class>
+            <class>adventureworks.entity.maps.SalesPerson_MAP</class>
+            <class>adventureworks.entity.maps.SalesReason_MAP</class>
+            <class>adventureworks.entity.maps.State_MAP</class>
+            <class>adventureworks.entity.maps.Store_MAP</class>
+            <class>adventureworks.entity.maps.Subcategory_MAP</class>
+            <class>adventureworks.entity.maps.Territory_MAP</class>
+            <class>adventureworks.entity.EtlMetaInformation</class>
+            <class>adventureworks.entity.dimensions.customer.Customer</class>
+            <class>adventureworks.entity.dimensions.place.City</class>
+            <class>adventureworks.entity.dimensions.place.Country</class>
+            <class>adventureworks.entity.dimensions.place.State</class>
+            <class>adventureworks.entity.dimensions.place.Territory</class>
+            <class>adventureworks.entity.dimensions.product.Category</class>
+            <class>adventureworks.entity.dimensions.product.Product</class>
+            <class>adventureworks.entity.dimensions.product.Subcategory</class>
+            <class>adventureworks.entity.dimensions.sales.SalesChannel</class>
+            <class>adventureworks.entity.dimensions.sales.SalesPerson</class>
+            <class>adventureworks.entity.dimensions.sales.SalesReason</class>
+            <class>adventureworks.entity.dimensions.sales.SalesReasonType</class>
+            <class>adventureworks.entity.dimensions.sales.ShippingMethod</class>
+            <class>adventureworks.entity.dimensions.customer.Store</class>
+            <class>adventureworks.entity.dimensions.time.Day</class>
+            <class>adventureworks.entity.dimensions.time.Month</class>
+            <class>adventureworks.entity.dimensions.time.Week</class>
+            <class>adventureworks.entity.dimensions.time.Year</class>
+            <class>adventureworks.entity.facts.SalesFact</class>
+        <properties>
+ <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
+<!--             <property name="hibernate.show_sql" value="true" /> -->
+<property name="hibernate.hbm2ddl.auto" value="create-drop" />
+        </properties>      
+    </persistence-unit>
+ 
+ 
+ 
     <persistence-unit name="dwhSource" transaction-type="JTA">
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
           <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
             <jta-data-source>java:jboss/datasources/DwhSource</jta-data-source>
+
             <class>adventureworks.entitySource.Address</class>
             <class>adventureworks.entitySource.Contact</class>
             <class>adventureworks.entitySource.Countryregion</class>
@@ -29,11 +75,15 @@
             <class>adventureworks.entitySource.Stateprovince</class>
             <class>adventureworks.entitySource.Store</class>
             <class>adventureworks.entitySource.Unitmeasure</class>
+            <class>adventureworks.entitySource.Salestaxrate</class>
+            <class>adventureworks.entitySource.Specialoffer</class>
+            <class>adventureworks.entitySource.Specialofferproduct</class>
+            <class>adventureworks.entitySource.SpecialofferproductPK</class>
 
    
 
         <properties>
-         <property name="hibernate.show_sql" value="true" />
+<!--          <property name="hibernate.show_sql" value="true" /> -->
         </properties>  
    </persistence-unit>  
    
@@ -41,14 +91,6 @@
    
    
        
-        <persistence-unit name="dwhtarget" transaction-type="JTA">
-          <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-  <jta-data-source>java:jboss/datasources/DwhTarget</jta-data-source>
-        <properties>
- <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
-            <property name="hibernate.show_sql" value="true" />
-<property name="hibernate.hbm2ddl.auto" value="create-drop" />
-        </properties>      
-    </persistence-unit>
+ 
     
 </persistence> 

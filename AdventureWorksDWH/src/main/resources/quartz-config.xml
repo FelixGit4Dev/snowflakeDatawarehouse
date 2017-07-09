@@ -7,19 +7,37 @@
 
 	<schedule>
 		<job>
-			<name>AJob</name>
+			<name>EtlJob</name>
 			<group>AGroup</group>
-			<description>Print a welcome message</description>
-			<job-class>com.mkyong.scheduler.SchedulerJob</job-class>
+			<description>Performs Etl Process</description>
+			<job-class>adventureworks.cronJobs.EtlJob</job-class>
 		</job>
 
 		<trigger>
 			<cron>
-				<name>dummyTriggerName</name>
-				<job-name>AJob</job-name>
+				<name>EtlTrigger</name>
+				<job-name>EtlJob</job-name>
 				<job-group>AGroup</job-group>
 				<!-- It will run every 5 seconds -->
-				<cron-expression>0/5 * * * * ?</cron-expression>
+				<cron-expression>0 50 21 1/1 * ? *</cron-expression>
+			</cron>
+		</trigger>
+	</schedule>
+	<schedule>
+		<job>
+			<name>operationalDataJob</name>
+			<group>AGroup</group>
+			<description>Generates operational Data</description>
+			<job-class>adventureworks.cronJobs.SimulateOperationalTransactions</job-class>
+		</job>
+
+		<trigger>
+			<cron>
+				<name>operationalDataTrigger</name>
+				<job-name>operationalDataJob</job-name>
+				<job-group>AGroup</job-group>
+				<!-- It will run every 5 seconds -->
+				<cron-expression>0/6 * * * * ?</cron-expression>
 			</cron>
 		</trigger>
 	</schedule>

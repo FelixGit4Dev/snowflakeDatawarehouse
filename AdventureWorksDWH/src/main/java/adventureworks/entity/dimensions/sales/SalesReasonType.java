@@ -9,16 +9,15 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
- @Entity
- @Table(name="SalesReason")
-public class SalesReason implements Serializable {
+@Entity
+@Table(name="SALESREASONTYPE")
+public class SalesReasonType implements Serializable{
 
+	@Id
+	@GeneratedValue(strategy=GenerationType.IDENTITY)
+	private long salesReasonTypeId;
+	
 	//slowly changing dimensions 
-	 
-	 @Id
-	 @GeneratedValue(strategy=GenerationType.IDENTITY)
-	 private long salesReasonId;
-	 
 		private Timestamp fromDate;
 		private Timestamp toDate;
 	

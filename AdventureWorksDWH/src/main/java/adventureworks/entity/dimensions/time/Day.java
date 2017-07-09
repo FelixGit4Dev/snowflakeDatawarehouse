@@ -15,8 +15,42 @@ public class Day {
 	private long dayId;
 	private long weekId;
 	private long monthId;
-	
-	
 	private String day;
+	public long getDayId() {
+		return dayId;
+	}
+	public void setDayId(long dayId) {
+		this.dayId = dayId;
+	}
+	public long getWeekId() {
+		return weekId;
+	}
+	public void setWeekId(long weekId) {
+		this.weekId = weekId;
+	}
+	public long getMonthId() {
+		return monthId;
+	}
+	public void setMonthId(long monthId) {
+		this.monthId = monthId;
+	}
+	public String getDay() {
+		return day;
+	}
+	public void setDay(String day) {
+		this.day = day;
+	}
+	public Day() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	public Day(long weekId, long monthId, String day) {
+		super();
+		this.weekId = weekId;
+		this.monthId = monthId;
+		this.day = day;
+	}
+	
+	
 
 }

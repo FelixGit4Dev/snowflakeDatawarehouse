@@ -25,4 +25,8 @@ public class Territory {
 		@Column(name="TERRITORY_NAME", nullable=false, updatable=true)
 		private String name;
 		
+		@Column (name="TERRITORY_GROUP")
+		private String group;
+		
+		
 }
