@@ -1,14 +1,15 @@
 package adventureworks.transformations;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 
-import adventureworks.Constants;
 import adventureworks.DAO.DwhSourceAccess;
 import adventureworks.DAO.DwhTargetAcess;
+import adventureworks.Util.Constants;
 import adventureworks.entity.facts.SalesFact;
 import adventureworks.entitySource.Salesorderdetail;
 import adventureworks.entitySource.Salesorderheader;
@@ -39,18 +40,20 @@ public class SalesFactTransformation implements Transformation{
 	        	
 	            for (Salesorderheader salesHeader : salesHeaders)
 	            {
+	            	
 	            	 int offsetdetails = 0;
 	            	 List<Salesorderdetail> list;
 	            	 while ((list = sourceDao.getAllSalesOrderdetailsBySalesHeaderId(salesHeader.getSalesOrderID(), offset, Constants.RESULTSETSIZE)).size() > 0){
-	            	for(Salesorderdetail detail: list){
+	            		 List<Object> factList= new ArrayList<Object>();
+	            		 for(Salesorderdetail detail: list){
 	            	SalesFact fact= 	new SalesFact();	
-	         long dueDateId = 0;
-	         long orderDateId=0;
-	         long territoryId=0;
-	         long productId=0;
-	         long customerId=0;
-	         long shippingMethodId=0;
-	         long salesPersonId=0;
+	         long dueDateId = targetDao.getDateId(salesHeader.getDueDate());
+	         long orderDateId=targetDao.getDateId(salesHeader.getOrderDate());;
+	         long territoryId=targetDao.getMappedTerritoryId(salesHeader.getSalesOrderID());;
+	         long productId=targetDao.getMappedProductId(detail.getId().getSalesOrderDetailID());;
+	         long customerId=targetDao.getMappedDCustomerId(salesHeader.getSalesOrderID());;
+	         long shippingMethodId=targetDao.getMappedShippingMethodId(salesHeader.getSalesOrderID());;
+	         long salesPersonId=targetDao.getMappedSalesPersonId(salesHeader.getSalesOrderID());;
 	         
 	         //DimensionsIds
 	         fact.setDueDateId(dueDateId);
@@ -60,16 +63,19 @@ public class SalesFactTransformation implements Transformation{
 	         fact.setCustomerId(customerId);
 	         fact.setShippingMethodId(shippingMethodId);
 	         fact.setSalesPersonId(salesPersonId);
+	        //S fact.setBillToStateProvinceId(billToAdressId);// Join Fact Adress and State where SalesHEader id ...
 	         
 	         
 	         //Kennzahlen
-	            	fact.setQuantity(0);
-	            	fact.setUnitPrice(0.0);
-	            	fact.setDiscount(0.0);
+	            	fact.setQuantity(detail.getOrderQty());
+	            	fact.setUnitPrice(detail.getUnitPrice());
+	            	fact.setDiscount(0.0); // inner join product specialofferPRoduct and specialoffer where product id 
 	            	fact.setTaxAmt(0.0);
-	            	this.targetDao.persistSalesFact(fact);	
+	            	fact.setTotal(detail.getOrderQty()*detail.getUnitPrice()-fact.getDiscount()+fact.getTaxAmt());
+	            	factList.add(fact);	
 	            	}
 	            	offsetdetails=list.size();
+	            	targetDao.persistListOfEntities(factList);
 	            	 }
 	            		    	
 	           

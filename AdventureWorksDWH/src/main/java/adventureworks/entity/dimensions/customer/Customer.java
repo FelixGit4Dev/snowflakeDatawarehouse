@@ -19,6 +19,7 @@ public class Customer {
 	//slowly changing dimensions 
 	private Timestamp fromDate;
 	private Timestamp toDate;
+	private Timestamp modfiedDate;
 	public long getCustomerId() {
 		return customerId;
 	}
@@ -36,5 +37,11 @@ public class Customer {
 	}
 	public void setToDate(Timestamp toDate) {
 		this.toDate = toDate;
+	}
+	public Timestamp getModfiedDate() {
+		return modfiedDate;
+	}
+	public void setModfiedDate(Timestamp modfiedDate) {
+		this.modfiedDate = modfiedDate;
 	}
 }

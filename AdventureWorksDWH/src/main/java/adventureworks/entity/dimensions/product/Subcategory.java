@@ -29,6 +29,12 @@ public class Subcategory implements Serializable{
 		private long subcategoryId;
 		
 		private long categoryId;
+		
+		public void setCategoryId(long categoryId) {
+			this.categoryId = categoryId;
+		}
+
+		private String name; 
 
 		public Subcategory() {
 			super();
@@ -61,6 +67,14 @@ public class Subcategory implements Serializable{
 
 		public long getCategoryId() {
 			return categoryId;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
 		}
 		
 		

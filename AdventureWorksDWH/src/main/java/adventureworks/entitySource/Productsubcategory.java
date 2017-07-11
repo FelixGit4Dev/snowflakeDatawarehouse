@@ -18,7 +18,7 @@ public class Productsubcategory implements Serializable {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(unique=true, nullable=false)
-	private int productSubcategoryID;
+	private long productSubcategoryID;
 
 	@Column(nullable=false)
 	private Timestamp modifiedDate;
@@ -35,7 +35,7 @@ public class Productsubcategory implements Serializable {
 	public Productsubcategory() {
 	}
 
-	public int getProductSubcategoryID() {
+	public long getProductSubcategoryID() {
 		return this.productSubcategoryID;
 	}
 

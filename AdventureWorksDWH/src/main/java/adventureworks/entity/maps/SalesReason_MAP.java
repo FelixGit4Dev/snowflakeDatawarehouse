@@ -85,4 +85,19 @@ public class SalesReason_MAP implements Serializable{
 		return mapId;
 	}
 
+	public SalesReason_MAP() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public SalesReason_MAP(long sourceKey, long dwhKey, Timestamp modifiedDate, Timestamp from, Time to) {
+		super();
+		this.sourceKey = sourceKey;
+		this.dwhKey = dwhKey;
+		this.modifiedDate = modifiedDate;
+		this.from = from;
+		this.to = to;
+	}
+
+	
 }

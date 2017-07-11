@@ -9,18 +9,19 @@ import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
 import javax.inject.Named;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceUnit;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Root;
 
 import org.apache.log4j.Logger;
 
+import adventureworks.entitySource.Contact;
 import adventureworks.entitySource.Customer;
+import adventureworks.entitySource.Individual;
 import adventureworks.entitySource.Product;
 import adventureworks.entitySource.Productcategory;
 import adventureworks.entitySource.Productsubcategory;
@@ -31,8 +32,6 @@ import adventureworks.entitySource.Salesreason;
 import adventureworks.entitySource.Salesterritory;
 import adventureworks.entitySource.Shipmethod;
 import adventureworks.entitySource.Store;
-import adventureworks.interceptor.Transactional;
-import adventureworks.interceptor.qualifiers.DwhSource;
 
 @Named
 @ApplicationScoped
@@ -44,7 +43,9 @@ public class DwhSourceAccess implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 
-@Inject
+	private String join = "SELECT %s FROM %s INNER JOIN Customers ON %s WHERE %s; ";
+	
+	@Inject
 Logger log;
 	
 //@Inject
@@ -54,6 +55,19 @@ Logger log;
 @PersistenceContext(unitName="dwhSource")
 EntityManager entityManager;
 
+
+
+
+public Timestamp getEarliestDate() {
+	
+	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	CriteriaQuery<Timestamp> cq = cb.createQuery(Timestamp.class);
+	Root<Salesorderheader> from = cq.from(Salesorderheader.class);
+	cq.select(cb.least(((Expression)from.get("orderDate"))));
+	TypedQuery<Timestamp> q = entityManager.createQuery(cq);
+	Timestamp item = q.getSingleResult();
+	return item;		
+}
 
 public List<Salesorderheader> getAllSalesOrderHeader(int offset, int max)
 {
@@ -109,7 +123,7 @@ public List<Productcategory> getAllCategories(int offset, int max)
 
 
 
-public List<Product> getProductsBySubcategoryId(int id, int offset, int max)
+public List<Product> getProductsBySubcategoryId(long id, int offset, int max)
     {
     	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     	CriteriaQuery<Product> cq = cb.createQuery(Product.class);
@@ -136,7 +150,7 @@ public List<Customer> getAllProducts(int offset, int max)
         }
 
 
-public List<Productsubcategory> getSubcategoriesByCategoryId(int id ,int offset, int max)
+public List<Productsubcategory> getSubcategoriesByCategoryId(long id ,int offset, int max)
     {
     	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     	CriteriaQuery<Productsubcategory> cq = cb.createQuery(Productsubcategory.class);
@@ -217,8 +231,8 @@ public List<Shipmethod> getShippingMethods(int offset, int max)   {
 
 
 
-public List<String> getSalesReasonsDistinctReasonType() {
-return entityManager.createNativeQuery("SELECT DISTINCT ReasonType FROM salesreason", String.class).getResultList();
+public List<Object> getSalesReasonsDistinctReasonType() {
+return entityManager.createNativeQuery("SELECT DISTINCT ReasonType FROM salesreason").getResultList();
 
 }
    
@@ -251,6 +265,40 @@ public List<Salesterritory> getAllTerritories(int offset, int max) {
 	return item;
 	
 }
+
+
+
+public Individual getIndividualForCustomerId(int id){
+	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	CriteriaQuery<Individual> cq = cb.createQuery(Individual.class);
+	Root<Individual> from = cq.from(Individual.class);
+	cq.select(from).where(cb.equal(from.get("customerID"),id));
+	TypedQuery<Individual> q = entityManager.createQuery(cq);
+	Individual item = q.getSingleResult();
+	return item;	
+}
+
+
+public Contact getContactForCustomerId(int id){
+	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	CriteriaQuery<Contact> cq = cb.createQuery(Contact.class);
+	Root<Contact> from = cq.from(Contact.class);
+	cq.select(from).where(cb.equal(from.get("customerID"),id));
+	TypedQuery<Contact> q = entityManager.createQuery(cq);
+	Contact item = q.getSingleResult();
+	return item;	
+}
+
+
+
+
+
+
+
+private static void main (String[] args){
+	
+}
+
 
 }
 

@@ -26,7 +26,7 @@ private	long saleFactId;
 	
 private	 long shippingMethodId;
 
-private	long billToAdressId;
+private	long billToStateProvinceId;
 
 private	long salesReasonId;
 
@@ -51,6 +51,7 @@ private double unitPrice;
 private double taxAmt;
 private double discount;
 private double total;
+private double productStandartCost;
 
 
 public SalesFact() {
@@ -61,7 +62,7 @@ public SalesFact(long shippingMethodId, long billToAdressId, long salesReasonId,
 		long dueDateId, long shipdateId) {
 	super();
 	this.shippingMethodId = shippingMethodId;
-	this.billToAdressId = billToAdressId;
+	this.billToStateProvinceId = billToAdressId;
 	this.salesReasonId = salesReasonId;
 	this.productId = productId;
 	this.territoryId = territoryId;
@@ -75,11 +76,11 @@ public long getShippingMethodId() {
 public void setShippingMethodId(long shippingMethodId) {
 	this.shippingMethodId = shippingMethodId;
 }
-public long getBillToAdressId() {
-	return billToAdressId;
+public long getBillToStateProvinceId() {
+	return billToStateProvinceId;
 }
-public void setBillToAdressId(long billToAdressId) {
-	this.billToAdressId = billToAdressId;
+public void setBillToStateProvinceId(long billToAdressId) {
+	this.billToStateProvinceId = billToAdressId;
 }
 public long getSalesReasonId() {
 	return salesReasonId;
@@ -164,6 +165,12 @@ public long getSalesPersonId() {
 }
 public void setSalesPersonId(long salesPersonId) {
 	this.salesPersonId = salesPersonId;
+}
+public double getProductStandartCost() {
+	return productStandartCost;
+}
+public void setProductStandartCost(double productStandartCost) {
+	this.productStandartCost = productStandartCost;
 }
 
 }

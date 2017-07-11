@@ -1,4 +1,4 @@
-package adventureworks;
+package adventureworks.Util;
 
 public class Constants {
 

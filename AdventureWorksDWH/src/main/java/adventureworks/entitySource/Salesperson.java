@@ -35,12 +35,12 @@ public class Salesperson implements Serializable {
 	@Column(nullable=false)
 	private double salesLastYear;
 
-	private double salesQuota;
+	private Double salesQuota;
 
 	@Column(nullable=false)
 	private double salesYTD;
 
-	private int territoryID;
+	private Long territoryID;
 
 	public Salesperson() {
 	}
@@ -97,11 +97,11 @@ public class Salesperson implements Serializable {
 		return this.salesQuota;
 	}
 
-	public void setSalesQuota(double salesQuota) {
+	public void setSalesQuota(Double salesQuota) {
 		this.salesQuota = salesQuota;
 	}
 
-	public double getSalesYTD() {
+	public Double getSalesYTD() {
 		return this.salesYTD;
 	}
 
@@ -109,11 +109,11 @@ public class Salesperson implements Serializable {
 		this.salesYTD = salesYTD;
 	}
 
-	public int getTerritoryID() {
+	public Long getTerritoryID() {
 		return this.territoryID;
 	}
 
-	public void setTerritoryID(int territoryID) {
+	public void setTerritoryID(Long territoryID) {
 		this.territoryID = territoryID;
 	}
 

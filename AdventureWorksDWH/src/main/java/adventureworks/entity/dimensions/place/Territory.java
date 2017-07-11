@@ -27,6 +27,59 @@ public class Territory {
 		
 		@Column (name="TERRITORY_GROUP")
 		private String group;
+
+		public long getTerritoryId() {
+			return territoryId;
+		}
+
+		public void setTerritoryId(long territoryId) {
+			this.territoryId = territoryId;
+		}
+
+		public Timestamp getFromDate() {
+			return fromDate;
+		}
+
+		public void setFromDate(Timestamp fromDate) {
+			this.fromDate = fromDate;
+		}
+
+		public Timestamp getToDate() {
+			return toDate;
+		}
+
+		public void setToDate(Timestamp toDate) {
+			this.toDate = toDate;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+
+		public String getGroup() {
+			return group;
+		}
+
+		public void setGroup(String group) {
+			this.group = group;
+		}
+
+		public Territory() {
+			super();
+			// TODO Auto-generated constructor stub
+		}
+
+		public Territory(Timestamp fromDate, Timestamp toDate, String name, String group) {
+			super();
+			this.fromDate = fromDate;
+			this.toDate = toDate;
+			this.name = name;
+			this.group = group;
+		}
 		
 		
 }

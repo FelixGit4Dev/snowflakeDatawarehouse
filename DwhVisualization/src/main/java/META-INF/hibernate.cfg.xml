@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<hibernate-configuration>
+    <session-factory>
+            <property name="dialect">
+            org.hibernate.dialect.MySQLDialect
+        </property>
+        <property name="connection.datasource">java:jboss/datasources/DwhTarget</property>
+    </session-factory>
+</hibernate-configuration>

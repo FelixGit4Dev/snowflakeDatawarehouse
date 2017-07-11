@@ -29,5 +29,63 @@ private String changedDimensions;
 
 @Column
 private Blob log;
+
+public long getId() {
+	return id;
+}
+
+public void setId(long id) {
+	this.id = id;
+}
+
+public Timestamp getEtlJobRun_Date() {
+	return etlJobRun_Date;
+}
+
+public void setEtlJobRun_Date(Timestamp etlJobRun_Date) {
+	this.etlJobRun_Date = etlJobRun_Date;
+}
+
+public long getTransferredFacts() {
+	return transferredFacts;
+}
+
+public void setTransferredFacts(long transferredFacts) {
+	this.transferredFacts = transferredFacts;
+}
+
+public String getChangedDimensions() {
+	return changedDimensions;
+}
+
+public void setChangedDimensions(String changedDimensions) {
+	this.changedDimensions = changedDimensions;
+}
+
+public Blob getLog() {
+	return log;
+}
+
+public void setLog(Blob log) {
+	this.log = log;
+}
+
+public EtlMetaInformation() {
+	super();
+	// TODO Auto-generated constructor stub
+}
+
+public EtlMetaInformation(long id, Timestamp etlJobRun_Date, long transferredFacts, String changedDimensions,
+		Blob log) {
+	super();
+	this.id = id;
+	this.etlJobRun_Date = etlJobRun_Date;
+	this.transferredFacts = transferredFacts;
+	this.changedDimensions = changedDimensions;
+	this.log = log;
+}
+
+
+
 	
 }

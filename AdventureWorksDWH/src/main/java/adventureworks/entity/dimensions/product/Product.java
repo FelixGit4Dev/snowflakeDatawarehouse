@@ -28,7 +28,7 @@ public class Product implements Serializable{
 	
 	private String name;
 	
-	private boolean makeFlag;
+	private byte makeFlag;
 	
 	private String productLine;
 	
@@ -42,7 +42,7 @@ public class Product implements Serializable{
 		@Column(name = "TO_DATE", nullable = true)
 		private Timestamp toDate;
 	
-	public Product(long subcategoryId, String name, boolean makeFlag, String productLine, String klasse, String style,
+	public Product(long subcategoryId, String name, byte makeFlag, String productLine, String klasse, String style,
 			Timestamp fromDate, Timestamp toDate) {
 		super();
 		this.subcategoryId = subcategoryId;
@@ -77,10 +77,10 @@ public class Product implements Serializable{
 		public void setName(String name) {
 			this.name = name;
 		}
-		public boolean isMakeFlag() {
+		public byte isMakeFlag() {
 			return makeFlag;
 		}
-		public void setMakeFlag(boolean makeFlag) {
+		public void setMakeFlag(byte makeFlag) {
 			this.makeFlag = makeFlag;
 		}
 		public String getProductLine() {

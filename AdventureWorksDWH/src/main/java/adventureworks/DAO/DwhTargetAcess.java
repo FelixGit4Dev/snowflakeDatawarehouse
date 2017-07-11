@@ -1,8 +1,14 @@
 package adventureworks.DAO;
 
 import java.io.Serializable;
+
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Date;
 import java.util.List;
+import java.util.zip.DataFormatException;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -35,8 +41,11 @@ import adventureworks.entity.dimensions.time.Year;
 import adventureworks.entity.facts.SalesFact;
 import adventureworks.entity.maps.Category_MAP;
 import adventureworks.entity.maps.Customer_MAP;
+import adventureworks.entity.maps.Product_MAP;
 import adventureworks.entity.maps.SalesPerson_MAP;
 import adventureworks.entity.maps.ShippingMethod_MAP;
+import adventureworks.entitySource.Individual;
+import adventureworks.entitySource.Salesorderheader;
 import adventureworks.interceptor.Transactional;
 import adventureworks.interceptor.qualifiers.DwhTarget;
 
@@ -57,14 +66,16 @@ public class DwhTargetAcess implements Serializable {
 
 	
 	
-	public Timestamp getEarliestDate() {
-		// TODO Auto-generated method stub
-		return null;
-	}
+	
 	
 	public Timestamp getLatestDate() {
-		// TODO Auto-generated method stub
-		return null;
+		CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+		CriteriaQuery<Salesorderheader> cq = cb.createQuery(Salesorderheader.class);
+		Root<Salesorderheader> from = cq.from(Salesorderheader.class);
+		cq.select(cb.greatest(((Expression)from.get("orderDate"))));
+		TypedQuery<Salesorderheader> q = entityManager.createQuery(cq);
+		Salesorderheader item = q.getSingleResult();
+		return item.getOrderDate();		
 	}
 	
 @Transactional
@@ -122,7 +133,7 @@ public EtlMetaInformation getLatestEtlMeta(){
 	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 	CriteriaQuery<EtlMetaInformation> cq = cb.createQuery(EtlMetaInformation.class);
 	Root<EtlMetaInformation> from = cq.from(EtlMetaInformation.class);
-	cq.select(cb.max(((Expression)from.get("etlJobRun_Date"))));
+	cq.select(cb.greatest(((Expression)from.get("etlJobRun_Date"))));
 	TypedQuery<EtlMetaInformation> q = entityManager.createQuery(cq);
 	EtlMetaInformation item = q.getSingleResult();
 	return item;		
@@ -195,7 +206,7 @@ public SalesReasonType persistSalesReasonType(SalesReasonType type) {
 
 
 @Transactional
-public void persistListOFEntities(List<Object> entities){
+public void persistListOfEntities(List<Object> entities){
 for(Object entity: entities){
 	entityManager.persist(entity);}
 entityManager.flush();
@@ -211,5 +222,113 @@ public List<IdHousekeeping> getAllIdHousekeeping(){
 	List<IdHousekeeping> item = q.getResultList();
 	return item;	
 }
+
+public long getDateId(Date salesOrderID) {
+DateTimeFormatter formatterDay = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+LocalDate date =salesOrderID.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+String dateString =date.format(formatterDay);
+CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+CriteriaQuery<Day> cq = cb.createQuery(Day.class);
+Root<Day> from = cq.from(Day.class);
+cq.select(from).where(cb.equal(from.get("day"),dateString));
+TypedQuery<Day> q = entityManager.createQuery(cq);
+Day item = q.getSingleResult();
+return item.getDayId();	
+	
+}
+
+
+
+public long getMappedTerritoryId(int salesOrderID) {
+	// TODO Auto-generated method stub
+	return 0;
+}
+
+public long getMappedDCustomerId(int salesOrderID) {
+	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	CriteriaQuery<Customer_MAP> cq = cb.createQuery(Customer_MAP.class);
+	Root<Customer_MAP> from = cq.from(Customer_MAP.class);
+	cq.select(from).where(cb.equal(from.get("sourceKey"),salesOrderID));
+	TypedQuery<Customer_MAP> q = entityManager.createQuery(cq);
+	Customer_MAP item = q.getSingleResult();
+	return item.getDwhKey();	
+}
+
+public long getMappedProductId(int salesOrderDetailID) {
+	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	CriteriaQuery<Product_MAP> cq = cb.createQuery(Product_MAP.class);
+	Root<Product_MAP> from = cq.from(Product_MAP.class);
+	cq.select(from).where(cb.equal(from.get("sourceKey"),salesOrderDetailID));
+	TypedQuery<Product_MAP> q = entityManager.createQuery(cq);
+	Product_MAP item = q.getSingleResult();
+	return item.getDwhKey();	
+}
+
+public long getMappedShippingMethodId(int salesOrderID) {
+	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	CriteriaQuery<ShippingMethod_MAP> cq = cb.createQuery(ShippingMethod_MAP.class);
+	Root<ShippingMethod_MAP> from = cq.from(ShippingMethod_MAP.class);
+	cq.select(from).where(cb.equal(from.get("sourceKey"),salesOrderID));
+	TypedQuery<ShippingMethod_MAP> q = entityManager.createQuery(cq);
+	ShippingMethod_MAP item = q.getSingleResult();
+	return item.getDwhKey();	
+}
+
+public long getMappedSalesPersonId(int salesOrderID) {
+	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	CriteriaQuery<SalesPerson_MAP> cq = cb.createQuery(SalesPerson_MAP.class);
+	Root<SalesPerson_MAP> from = cq.from(SalesPerson_MAP.class);
+	cq.select(from).where(cb.equal(from.get("sourceKey"),salesOrderID));
+	TypedQuery<SalesPerson_MAP> q = entityManager.createQuery(cq);
+	SalesPerson_MAP item = q.getSingleResult();
+	return item.getDwhKey();	
+}
+
+public void initializeIdHousekeeping() {
+	
+entityManager.persist(new IdHousekeeping("Customer", 0L));
+entityManager.persist(new IdHousekeeping("City", 0L));
+entityManager.persist(new IdHousekeeping("Country", 0L));
+entityManager.persist(new IdHousekeeping("State", 0L));
+entityManager.persist(new IdHousekeeping("Territory", 0L));
+entityManager.persist(new IdHousekeeping("Category", 0L));
+entityManager.persist(new IdHousekeeping("Product", 0L));
+entityManager.persist(new IdHousekeeping("Subcategory", 0L));
+entityManager.persist(new IdHousekeeping("SalesChannel", 0L));
+entityManager.persist(new IdHousekeeping("SalesPerson", 0L));
+entityManager.persist(new IdHousekeeping("SalesReason", 0L));
+entityManager.persist(new IdHousekeeping("SaleReasonType", 0L));
+entityManager.persist(new IdHousekeeping("ShippingMethod", 0L));
+	
+}
+
+@Transactional
+public void persistIdHousekeeping(IdHousekeeping hk){
+entityManager.merge(hk);
+entityManager.flush();
+}
+
+
+public IdHousekeeping getIdHousekeepingForDimensionTable(String table){
+	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	CriteriaQuery<IdHousekeeping> cq = cb.createQuery(IdHousekeeping.class);
+	Root<IdHousekeeping> from = cq.from(IdHousekeeping.class);
+	cq.select(from).where(cb.equal(from.get("tableName"),table));
+	TypedQuery<IdHousekeeping> q = entityManager.createQuery(cq);
+	IdHousekeeping item = q.getSingleResult();
+	return item;	
+
+}
+
+@Transactional
+public Object persistObject(Object o){
+ entityManager.persist(o);
+ return o;
+}
+@Transactional
+public Object mergeObject(Object o){
+	return  entityManager.merge(o);
+
+	}
 
 }

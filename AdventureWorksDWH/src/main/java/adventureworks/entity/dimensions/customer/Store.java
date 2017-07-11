@@ -14,9 +14,42 @@ public class Store {
 	//slowly changing dimensions 
 		private Timestamp fromDate;
 		private Timestamp toDate;
-		private long customerId;
-		@Id
-		@GeneratedValue(strategy=GenerationType.IDENTITY)
+		
+		@Id		
 		private long storeId;
-	
+		
+		private String name;
+
+		public Timestamp getFromDate() {
+			return fromDate;
+		}
+
+		public void setFromDate(Timestamp fromDate) {
+			this.fromDate = fromDate;
+		}
+
+		public Timestamp getToDate() {
+			return toDate;
+		}
+
+		public void setToDate(Timestamp toDate) {
+			this.toDate = toDate;
+		}
+
+		public long getStoreId() {
+			return storeId;
+		}
+
+		public void setStoreId(long storeId) {
+			this.storeId = storeId;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public void setName(String name) {
+			this.name = name;
+		}
+		
 }
