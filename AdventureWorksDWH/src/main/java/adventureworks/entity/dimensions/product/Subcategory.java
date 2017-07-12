@@ -27,7 +27,8 @@ public class Subcategory implements Serializable{
 		@Id
 		@GeneratedValue(strategy=GenerationType.IDENTITY)
 		private long subcategoryId;
-		
+		@Column(nullable=false)
+		private Timestamp modfiedDate;
 		private long categoryId;
 		
 		public void setCategoryId(long categoryId) {
@@ -75,6 +76,14 @@ public class Subcategory implements Serializable{
 
 		public void setName(String name) {
 			this.name = name;
+		}
+
+		public Timestamp getModfiedDate() {
+			return modfiedDate;
+		}
+
+		public void setModfiedDate(Timestamp modfiedDate) {
+			this.modfiedDate = modfiedDate;
 		}
 		
 		

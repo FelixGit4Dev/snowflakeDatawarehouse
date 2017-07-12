@@ -2,6 +2,7 @@ package adventureworks.entity.dimensions.customer;
 
 import java.sql.Timestamp;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,6 +15,8 @@ public class Store {
 	//slowly changing dimensions 
 		private Timestamp fromDate;
 		private Timestamp toDate;
+		@Column(nullable=false)
+		private Timestamp modfiedDate;
 		
 		@Id		
 		private long storeId;
@@ -50,6 +53,14 @@ public class Store {
 
 		public void setName(String name) {
 			this.name = name;
+		}
+
+		public Timestamp getModfiedDate() {
+			return modfiedDate;
+		}
+
+		public void setModfiedDate(Timestamp modfiedDate) {
+			this.modfiedDate = modfiedDate;
 		}
 		
 }

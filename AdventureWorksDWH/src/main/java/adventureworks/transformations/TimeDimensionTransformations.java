@@ -52,11 +52,15 @@ for(LocalDate date : totalDates){
 	Year year = new Year(date.format(formatterYear));
 	LocalDate firstDay = date.with(firstDayOfYear()); // 2015-01-01
 	LocalDate lastDay = date.with(lastDayOfYear()); // 2015-12-31
+	Timestamp now= new Timestamp(System.currentTimeMillis());
+	year.setModfiedDate(now );
 	year= (Year) this.targetDao.persistObject(year);
 	
 	System.out.println(date.format(formatterYear));
 	while (!firstDay.isAfter(lastDay)) {
 		 Month m= new Month(year.getYearId(),firstDay.format(formatterMonth) );
+		 now= new Timestamp(System.currentTimeMillis());
+		 m.setModfiedDate(now);
 		 m = this.targetDao.persistMonth(m);
 		  System.out.println(firstDay.format(formatterMonth));
 		  firstDay = firstDay.plusMonths(1);	 
@@ -64,6 +68,8 @@ for(LocalDate date : totalDates){
 			LocalDate lastDayMonth = firstDay.with(lastDayOfMonth()); // 2015-12-31
 		  while (!firstDayMonth.isAfter(lastDayMonth)) {
 			Day d = new  Day(1L, m.getMonthId(), firstDayMonth.format(formatterDay)); 
+			 now= new Timestamp(System.currentTimeMillis());
+			 d.setModfiedDate(now);
 			this.targetDao.persistDay(d);
 			  System.out.println(firstDayMonth.format(formatterDay));
 			  firstDayMonth = firstDayMonth.plusDays(1);

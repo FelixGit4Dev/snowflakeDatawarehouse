@@ -1,7 +1,9 @@
 package adventureworks.entity.dimensions.product;
 
 import java.io.Serializable;
+import java.sql.Timestamp;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -16,19 +18,13 @@ public class MakeFlag implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 
-@Id
-@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private long makeId;
-	
+
+	@Id
+	private String makeTypeCode;
 private String makeType;
 
-public long getMakeId() {
-	return makeId;
-}
-
-public void setMakeId(long makeId) {
-	this.makeId = makeId;
-}
+@Column(nullable=false)
+private Timestamp modfiedDate;
 
 public String getMakeType() {
 	return makeType;
@@ -43,9 +39,26 @@ public MakeFlag() {
 	// TODO Auto-generated constructor stub
 }
 
-public MakeFlag(String makeType) {
+public MakeFlag(String makeCode, String makeType) {
 	super();
+	this.makeTypeCode= makeCode;
 	this.makeType = makeType;
+}
+
+public String getMakeTypeCode() {
+	return makeTypeCode;
+}
+
+public void setMakeTypeCode(String makeTypeCode) {
+	this.makeTypeCode = makeTypeCode;
+}
+
+public Timestamp getModfiedDate() {
+	return modfiedDate;
+}
+
+public void setModfiedDate(Timestamp modfiedDate) {
+	this.modfiedDate = modfiedDate;
 }
 	
 

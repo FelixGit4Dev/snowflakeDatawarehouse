@@ -1,5 +1,8 @@
 package adventureworks.entity.dimensions.customer;
 
+import java.sql.Timestamp;
+
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,6 +17,8 @@ public class Individual {
 	@Id
 	private long individualId;
 	
+	@Column(nullable=false)
+	private Timestamp modfiedDate;
 	private String firstName;
 	private String lastName;
 	private String dateFirstPurchase;
@@ -183,6 +188,14 @@ public class Individual {
 		this.homeOwnerFlag = homeOwnerFlag;
 		this.numberCarsOwned = numberCarsOwned;
 		this.commuteDistance = commuteDistance;
+	}
+
+	public Timestamp getModfiedDate() {
+		return modfiedDate;
+	}
+
+	public void setModfiedDate(Timestamp modfiedDate) {
+		this.modfiedDate = modfiedDate;
 	}
 	
 	

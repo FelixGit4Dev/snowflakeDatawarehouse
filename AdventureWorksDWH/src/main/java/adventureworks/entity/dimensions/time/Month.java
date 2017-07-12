@@ -1,6 +1,9 @@
 package adventureworks.entity.dimensions.time;
 
+import java.sql.Timestamp;
+
 import javax.annotation.Generated;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,6 +17,8 @@ public class Month {
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
 private long monthId;	
+	@Column(nullable=false)
+	private Timestamp modfiedDate;	
 	
 private long yearId;	
 private String month;
@@ -44,6 +49,12 @@ public Month(long yearId, String month) {
 	super();
 	this.yearId = yearId;
 	this.month = month;
+}
+public Timestamp getModfiedDate() {
+	return modfiedDate;
+}
+public void setModfiedDate(Timestamp modfiedDate) {
+	this.modfiedDate = modfiedDate;
 }
 
 }

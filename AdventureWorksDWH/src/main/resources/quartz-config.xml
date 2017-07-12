@@ -19,7 +19,7 @@
 				<job-name>EtlJob</job-name>
 				<job-group>AGroup</job-group>
 				<!-- It will run every 5 seconds -->
-				<cron-expression>0 07 17 1/1 * ? *</cron-expression>
+				<cron-expression>0 03 13 1/1 * ? *</cron-expression>
 			</cron>
 		</trigger>
 	</schedule>

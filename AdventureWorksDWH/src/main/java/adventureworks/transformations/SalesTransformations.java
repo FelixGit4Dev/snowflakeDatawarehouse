@@ -48,10 +48,14 @@ private DwhTargetAcess targetDao;
 
 	public void initDimension() {
 	Timestamp initialFrom= new Timestamp(0);
-	 Timestamp now;
+	 Timestamp now =new Timestamp(System.currentTimeMillis());
 	//	SalesChannel Dimensions
-	this.targetDao.persistSalesChannel(new SalesChannel(null,null,"ONLINE"));
-	this.targetDao.persistSalesChannel(new SalesChannel(null,null,"DIREKT"));	
+	 SalesChannel channel =new SalesChannel(initialFrom,null,"ONLINE");
+	 channel.setModfiedDate(now);
+	this.targetDao.persistObject(channel );
+	channel= new SalesChannel(initialFrom,null,"DIREKT");
+	channel.setModfiedDate(now);
+	this.targetDao.persistObject(new SalesChannel(null,null,"DIREKT"));	
 	//SalesPerson Dimension
 	 int offset = 0;
 
@@ -62,8 +66,12 @@ private DwhTargetAcess targetDao;
          for (Salesperson salesPerson : salesPersons)
          {
         	 SalesPerson person = new SalesPerson();
+        	   now =new Timestamp(System.currentTimeMillis());
+        	 person.setModfiedDate(now);
+        	 person.setFromDate(initialFrom);
+        	 person.setToDate(null);
         		person= this.targetDao.persistSalesPerson(person);
-        		   now =new Timestamp(System.currentTimeMillis());
+        		
         		SalesPerson_MAP map= new SalesPerson_MAP(salesPerson.getSalesPersonID(),person.getSalesPersonId(),now,initialFrom,null);
         		this.targetDao.persistSalesPerson_MAP(map); 
          }
@@ -78,9 +86,10 @@ private DwhTargetAcess targetDao;
     
          for (Shipmethod method : shippingMethods)
          {
-        ShippingMethod shipping = new ShippingMethod(method.getName(),null,null);
+        ShippingMethod shipping = new ShippingMethod(method.getName(),initialFrom,null);
         now =new Timestamp(System.currentTimeMillis());
-        this.targetDao.persistShippingMethod(shipping);
+        shipping.setModfiedDate(now);
+        this.targetDao.persistObject(shipping);
         ShippingMethod_MAP map= new ShippingMethod_MAP(method.getShipMethodID(), shipping.getShippingMethodId(), now, initialFrom, null);
        targetDao.persistObject(map);
          }
@@ -90,25 +99,25 @@ private DwhTargetAcess targetDao;
      
 	//SalesReason Dimension
      offset=0;
-     List<String> salesReasonTypes;
    List<Object> reasonTypes = sourceDao.getSalesReasonsDistinctReasonType();
    for(Object reasontype : reasonTypes){
-	SalesReasonType  type = new SalesReasonType(); 
-	type.setTypeName((String)reasontype.toString());
-	this.targetDao.persistSalesReasonType(type);
+	SalesReasonType  type = new SalesReasonType(initialFrom,null,((String)reasontype.toString())); 
+	now =new Timestamp(System.currentTimeMillis());
+	type.setModfiedDate(now);
+	this.targetDao.persistObject(type);
 	 List<Salesreason> salesReasons;
 	 while ((salesReasons = this.sourceDao.getallSalesReasonsByReasonType(reasontype.toString(),offset, Constants.RESULTSETSIZE)).size() > 0)
      {
     
          for (Salesreason method : salesReasons)
          {
-        SalesReason reasonTarget= new SalesReason();
-        reasonTarget.setName(method.getName());
+        SalesReason reasonTarget= new SalesReason(type.getSalesReasonTypeId(),initialFrom,null,method.getName());
+        now =new Timestamp(System.currentTimeMillis());
+reasonTarget.setModfiedDate(now);
         targetDao.persistObject(reasonTarget);
-        now= new Timestamp(System.currentTimeMillis());
         SalesReason_MAP map= new SalesReason_MAP(method.getSalesReasonID(),reasonTarget.getSalesReasonId(),now,initialFrom,null);
           }
-         offset += shippingMethods.size();
+         offset += salesReasons.size();
      } 
    }
 	}

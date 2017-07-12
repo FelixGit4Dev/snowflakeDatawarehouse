@@ -4,35 +4,15 @@
           <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
             <jta-data-source>java:jboss/datasources/DwhTarget</jta-data-source>
 
-    <class>felix.developement.medicare.puraStat.entity.UserVO</class>
-        <class>felix.developement.medicare.puraStat.entity.SurveyParticipantVO</class>
-         <class>felix.developement.medicare.puraStat.entity.SurveyAnswersVO</class>
+
 
         <properties>
-<!--             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/> -->
-<!--             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/medicare"/> -->
-<!--             <property name="javax.persistence.jdbc.user" value="medicare"/> -->
-<!--             <property name="javax.persistence.jdbc.password" value="$N!5m1nn94%"/> -->
 
         </properties>  
    </persistence-unit>  
    
    
    
-       
-<!--         <persistence-unit name="test" transaction-type="RESOURCE_LOCAL"> -->
-<!--           <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider> -->
 
-<!--     <class>felix.developement.medicare.puraStat.entity.UserVO</class> -->
-<!--         <class>felix.developement.medicare.puraStat.entity.SurveyParticipantVO</class> -->
-<!--          <class>felix.developement.medicare.puraStat.entity.SurveyAnswersVO</class> -->
-<!--         <properties> -->
-<!--         <property name = "hibernate.show_sql" value = "true" /> -->
-<!--             <property name="javax.persistence.jdbc.driver" value="com.mysql.jdbc.Driver"/> -->
-<!--             <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/medicare"/> -->
-<!--             <property name="javax.persistence.jdbc.user" value="medicare"/> -->
-<!--             <property name="javax.persistence.jdbc.password" value="$N!5m1nn94%"/> -->
-<!--         </properties>       -->
-<!--     </persistence-unit> -->
     
 </persistence> 

@@ -41,7 +41,8 @@ public class Product implements Serializable{
 		private Timestamp fromDate;
 		@Column(name = "TO_DATE", nullable = true)
 		private Timestamp toDate;
-	
+		@Column(nullable=false)
+		private Timestamp modfiedDate;
 	public Product(long subcategoryId, String name, byte makeFlag, String productLine, String klasse, String style,
 			Timestamp fromDate, Timestamp toDate) {
 		super();
@@ -112,6 +113,12 @@ public class Product implements Serializable{
 		}
 		public void setToDate(Timestamp toDate) {
 			this.toDate = toDate;
+		}
+		public Timestamp getModfiedDate() {
+			return modfiedDate;
+		}
+		public void setModfiedDate(Timestamp modfiedDate) {
+			this.modfiedDate = modfiedDate;
 		}
 		
 		

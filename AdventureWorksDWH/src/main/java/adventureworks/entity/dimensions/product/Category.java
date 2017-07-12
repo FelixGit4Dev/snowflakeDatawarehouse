@@ -23,7 +23,8 @@ public class Category implements Serializable {
 	private Timestamp fromDate;
 	@Column(name = "TO_DATE", nullable = true)
 	private Timestamp toDate;
-
+	@Column(nullable=false)
+	private Timestamp modfiedDate;
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private long categoryId;
@@ -72,6 +73,14 @@ public class Category implements Serializable {
 		this.fromDate = fromDate;
 		this.toDate = toDate;
 		this.name = name;
+	}
+
+	public Timestamp getModfiedDate() {
+		return modfiedDate;
+	}
+
+	public void setModfiedDate(Timestamp modfiedDate) {
+		this.modfiedDate = modfiedDate;
 	}
 
 }

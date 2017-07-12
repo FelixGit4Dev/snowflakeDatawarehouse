@@ -62,10 +62,13 @@ private long maxIndividualId;
 	           Customer_MAP map = new Customer_MAP(customer.getCustomerID(),customerDwh.getCustomerId(), now,new Timestamp(0),null);
 	            this.targetDao.persistCustomer_MAP(map);
 	            Store store = this.sourceDao.getStoreByCustomerId( customer.getCustomerID());
+	     
 	         if(store!=null){
 	            adventureworks.entity.dimensions.customer.Store dwhStore=    new adventureworks.entity.dimensions.customer.Store(); 
 	         dwhStore.setStoreId(customerDwh.getCustomerId());
 	         dwhStore.setName(store.getName());
+	         now =new Timestamp(System.currentTimeMillis());
+	         dwhStore.setModfiedDate(now);
 	         //TODO
 	        // evaluate Store survey 
 	            this.targetDao.persistStore(dwhStore);
@@ -79,6 +82,8 @@ private long maxIndividualId;
 	            individualDwh.setDateFirstPurchase(survey.getDateFirstPurchase());
 	            individualDwh.setFirstName(contact.getFirstName());
 	            individualDwh.setLastName(contact.getLastName());
+	            now =new Timestamp(System.currentTimeMillis());
+	            individualDwh.setModfiedDate(now);
 	           
 
 	            }}

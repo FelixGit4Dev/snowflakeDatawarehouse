@@ -3,6 +3,7 @@ package adventureworks.entity.dimensions.sales;
 import java.io.Serializable;
 import java.sql.Timestamp;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -25,6 +26,10 @@ public class SalesChannel implements Serializable{
 		@GeneratedValue(strategy=GenerationType.IDENTITY)
 		@Id
 		private long salesChannelId;
+		
+		@Column(nullable=false)
+		private Timestamp modfiedDate;
+		
 		public Timestamp getFromDate() {
 			return fromDate;
 		}
@@ -58,6 +63,12 @@ public class SalesChannel implements Serializable{
 			this.fromDate = fromDate;
 			this.toDate = toDate;
 			this.channel = channel;
+		}
+		public Timestamp getModfiedDate() {
+			return modfiedDate;
+		}
+		public void setModfiedDate(Timestamp modfiedDate) {
+			this.modfiedDate = modfiedDate;
 		}
 		
 	

@@ -37,7 +37,7 @@ public class Product_MAP implements Serializable{
 	private Timestamp from;
 
 	@Column(name="VALID_TO")
-	private Time to; 
+	private Timestamp to; 
 
 
 
@@ -73,16 +73,30 @@ public class Product_MAP implements Serializable{
 		this.from = from;
 	}
 
-	public Time getTo() {
+	public Timestamp getTo() {
 		return to;
 	}
 
-	public void setTo(Time to) {
+	public void setTo(Timestamp to) {
 		this.to = to;
 	}
 
 	public long getMapId() {
 		return mapId;
+	}
+
+	public Product_MAP() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public Product_MAP(long sourceKey, long dwhKey, Timestamp modifiedDate, Timestamp from, Timestamp to) {
+		super();
+		this.sourceKey = sourceKey;
+		this.dwhKey = dwhKey;
+		this.modifiedDate = modifiedDate;
+		this.from = from;
+		this.to = to;
 	}
 
 }

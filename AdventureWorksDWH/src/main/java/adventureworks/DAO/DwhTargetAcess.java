@@ -323,6 +323,7 @@ public IdHousekeeping getIdHousekeepingForDimensionTable(String table){
 @Transactional
 public Object persistObject(Object o){
  entityManager.persist(o);
+ entityManager.flush();
  return o;
 }
 @Transactional

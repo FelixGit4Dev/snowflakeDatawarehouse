@@ -1,6 +1,7 @@
 package adventureworks.transformations;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -12,7 +13,11 @@ import adventureworks.DAO.DwhSourceAccess;
 import adventureworks.DAO.DwhTargetAcess;
 import adventureworks.Util.Constants;
 import adventureworks.entity.dimensions.product.Category;
+import adventureworks.entity.dimensions.product.MakeFlag;
 import adventureworks.entity.dimensions.product.Product;
+import adventureworks.entity.dimensions.product.ProductClasse;
+import adventureworks.entity.dimensions.product.ProductLine;
+import adventureworks.entity.dimensions.product.ProductStyle;
 import adventureworks.entity.dimensions.product.Subcategory;
 import adventureworks.entity.maps.Category_MAP;
 import adventureworks.entity.maps.Product_MAP;
@@ -35,6 +40,8 @@ private DwhSourceAccess sourceDao;
 private DwhTargetAcess targetDao;
 
 	public void initDimension() {
+		Timestamp startFrom = new Timestamp(0);
+		initProductlineClassStyle();
 		   int offset = 0;
 
 	        List<Productcategory> salesHeaders;
@@ -44,9 +51,11 @@ private DwhTargetAcess targetDao;
 	            for (Productcategory salesHeader : salesHeaders)
 	            {
 	            Category category = new Category(new Timestamp(0), null, salesHeader.getName());
-	            category= this.targetDao.persistCategory(category);
 	            Timestamp now =new Timestamp(System.currentTimeMillis());
-	            Category_MAP map= new Category_MAP(salesHeader.getProductCategoryID(),category.getCategoryId(),new Timestamp((new Date()).getTime()),new Timestamp((new Date()).getTime()),new Timestamp((new Date()).getTime()));
+	            category.setModfiedDate(now);
+	            category= this.targetDao.persistCategory(category);
+	         
+	            Category_MAP map= new Category_MAP(salesHeader.getProductCategoryID(),category.getCategoryId(),now,startFrom,null);
 	           createSubcategory(category.getCategoryId());
 	            this.targetDao.persistCategory_MAP(map);
 	            
@@ -57,6 +66,42 @@ private DwhTargetAcess targetDao;
 	}
 	
 	
+	private void initProductlineClassStyle() {
+		List<Object> topersist = new ArrayList<Object>();
+		ProductLine line = new ProductLine("R", "Cityrad");
+	topersist.add(line);
+		 line = new ProductLine("M", "Mountainbike");
+		 topersist.add(line);
+		
+		 line = new ProductLine("T", "Tourenrad");
+		 topersist.add(line);
+		 line = new ProductLine("S", "Standardrad");
+		 topersist.add(line);
+			
+		ProductClasse classe = new ProductClasse("H", "Hoch");	
+		topersist.add(classe);
+		classe= new ProductClasse("M", "Mittel");
+		topersist.add(classe);
+		classe = new ProductClasse("L","Niedrig");
+		topersist.add(classe);
+		
+		ProductStyle style = new ProductStyle("W", "Damenrad");
+		topersist.add(style);
+		style = new ProductStyle("M", "Herrenrad");
+		topersist.add(style);
+		style = new ProductStyle("U", "Universalrad");
+		topersist.add(style);
+		
+		
+		
+		MakeFlag flag = new MakeFlag("M", "SelfMade");
+		topersist.add(flag);
+		flag = new MakeFlag("B", "Bought");
+		topersist.add(flag);
+		targetDao.persistListOfEntities(topersist);
+	}
+
+
 	public void createSubcategory(long id){
 		int offset = 0;
 
@@ -69,9 +114,11 @@ private DwhTargetAcess targetDao;
           Subcategory subcategory= new Subcategory();
           subcategory.setName(salesHeader.getName());
           subcategory.setCategoryId(id);
+          Timestamp now =new Timestamp(System.currentTimeMillis());
+          subcategory.setModfiedDate(now);
         targetDao.persistSubcategory(subcategory);
-        Timestamp now =new Timestamp(System.currentTimeMillis());
-        Subcategory_MAP map= new Subcategory_MAP(salesHeader.getProductSubcategoryID(),subcategory.getSubcategoryId(),now,now,now);
+        
+        Subcategory_MAP map= new Subcategory_MAP(salesHeader.getProductSubcategoryID(),subcategory.getSubcategoryId(),now,new Timestamp(0),null);
         targetDao.persistObject(map);    	
         createProduct(salesHeader.getProductSubcategoryID());
             
@@ -96,9 +143,10 @@ private DwhTargetAcess targetDao;
           product.setName(salesHeader.getName());
           product.setMakeFlag(salesHeader.getMakeFlag());
           product.setKlasse(salesHeader.getClass_());
-          targetDao.persistProduct(product);
-          Product_MAP map= new Product_MAP();
           Timestamp now =new Timestamp(System.currentTimeMillis());
+          product.setModfiedDate(now);
+          targetDao.persistProduct(product);
+          Product_MAP map= new Product_MAP(((long)salesHeader.getProductID()),product.getProductId(),now,new Timestamp(0), null);
           map.setModifiedDate(now);
           targetDao.persistObject(map);
             	

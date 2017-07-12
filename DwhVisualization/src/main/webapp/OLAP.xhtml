@@ -7,7 +7,59 @@
     xmlns:c="http://java.sun.com/jsp/jstl/core"
     xmlns:p="http://primefaces.org/ui">
     <h:head>
-	
+	<script type="text/javascript">
+    function initDND() {
+        $('.ui-treenode-leaf').draggable({
+           helper: 'clone',
+           scope: 'treetotable',
+           zIndex: ++PrimeFaces.zindex
+        });
+ 
+        $('.ui-datatable .droppoint').droppable({
+           activeClass: 'ui-state-active',
+           hoverClass: 'ui-state-highlight',
+           tolerance: 'pointer',
+           scope: 'treetotable',
+           drop: function(event, ui) {
+               var property = ui.draggable.find('.ui-treenode-label').text(),
+               droppedColumnId = $(this).parents('th:first').attr('id'),
+               dropPos = $(this).hasClass('dropleft') ? 0 : 1;
+ 
+               treeToTable([
+                    {name: 'property', value:  property}
+                   ,{name: 'droppedColumnId', value: droppedColumnId}
+                   ,{name: 'dropPos', value: dropPos}
+               ]);
+           }
+        });
+ 
+        $('.ui-datatable th').draggable({
+           scope: 'tabletotree',
+           helper: function() {
+               var th = $(this);
+ 
+               return th.clone().appendTo(document.body).css('width', th.width());
+           }
+        });
+ 
+        $('.ui-tree').droppable({
+           helper: 'clone',
+           scope: 'tabletotree',
+           activeClass: 'ui-state-active',
+           hoverClass: 'ui-state-highlight',
+           tolerance: 'touch',
+           drop: function(event, ui) {                               
+               tableToTree([
+                   {name: 'colIndex', value:  ui.draggable.index()}
+               ]);
+           }
+        });
+    }
+ 
+    $(function() {
+        initDND();
+    });
+</script>
     </h:head>
     <h:body style="background:#abacad;height:100%;width:100%" onunload=""> 
   
@@ -35,7 +87,15 @@
     </f:facet>
  <p:row>
  <p:column>
- 
+ <h:panelGroup>
+ Time <br/>
+<p:outputLabel/>   <p:selectOneMenu id="time" value="#{olapController.timeDimensionLevel}" style="width:125px">
+            <f:selectItem itemLabel="DAY" itemValue="DAY" />
+            <f:selectItem itemLabel="MONTH" itemValue="MONTH" />
+            <f:selectItem itemLabel="YEAR" itemValue="YEAR" /> Filter: <p:inputText value="#{olapController.timeFilter}"/>
+        
+        </p:selectOneMenu> <p:outputLabel/>  
+ </h:panelGroup>
  </p:column>
  <p:column></p:column>
  <p:column></p:column>
@@ -48,12 +108,103 @@
  <p:column></p:column>
  </p:row>
 </p:panelGrid>
+<p:panelGrid columns="2">
+    <f:facet name="header">
+       Kennzahlen 
+    </f:facet>  
+ <p:row>
+ <p:outputLabel for="console" value="Quantity"/>  <p:selectOneRadio id="console" value="#{olapController.quantityFunction}">
+            <f:selectItem itemLabel="SUM" itemValue="SUM" />
+            <f:selectItem itemLabel="AVG" itemValue="AVG" />
+            <f:selectItem itemLabel="MIN" itemValue="MIN" />
+            <f:selectItem itemLabel="MAX" itemValue="MAX" />
+        </p:selectOneRadio>
+ </p:row>
+ <p:row>
+ <p:outputLabel for="console" value="Unit Price"/>  <p:selectOneRadio id="console" value="#{olapController.unitPriceFunction}">
+            <f:selectItem itemLabel="SUM" itemValue="SUM" />
+            <f:selectItem itemLabel="AVG" itemValue="AVG" />
+            <f:selectItem itemLabel="MIN" itemValue="MIN" />
+            <f:selectItem itemLabel="MAX" itemValue="MAX" />
+        </p:selectOneRadio>
+ </p:row>
+ <p:row>
+ <p:outputLabel for="console" value="taxAmt"/>  <p:selectOneRadio id="console" value="#{olapController.taxAmtFunction}">
+            <f:selectItem itemLabel="SUM" itemValue="SUM" />
+            <f:selectItem itemLabel="AVG" itemValue="AVG" />
+            <f:selectItem itemLabel="MIN" itemValue="MIN" />
+            <f:selectItem itemLabel="MAX" itemValue="MAX" />
+        </p:selectOneRadio>
+ </p:row>
+ <p:row>
+ <p:outputLabel for="console" value="discount"/>  <p:selectOneRadio id="console" value="#{olapController.discountFunction}">
+            <f:selectItem itemLabel="SUM" itemValue="SUM" />
+            <f:selectItem itemLabel="AVG" itemValue="AVG" />
+            <f:selectItem itemLabel="MIN" itemValue="MIN" />
+            <f:selectItem itemLabel="MAX" itemValue="MAX" />
+        </p:selectOneRadio>
+ </p:row>
+ <p:row>
+ <p:outputLabel for="console" value="Total"/>  <p:selectOneRadio id="console" value="#{olapController.totalFunction}">
+            <f:selectItem itemLabel="SUM" itemValue="SUM" />
+            <f:selectItem itemLabel="AVG" itemValue="AVG" />
+            <f:selectItem itemLabel="MIN" itemValue="MIN" />
+            <f:selectItem itemLabel="MAX" itemValue="MAX" />
+        </p:selectOneRadio>
+ </p:row>
+ <p:row>
+ <p:outputLabel for="console" value="StandartCost"/>  <p:selectOneRadio id="console" value="#{olapController.standartCostFunction}">
+            <f:selectItem itemLabel="SUM" itemValue="SUM" />
+            <f:selectItem itemLabel="AVG" itemValue="AVG" />
+            <f:selectItem itemLabel="MIN" itemValue="MIN" />
+            <f:selectItem itemLabel="MAX" itemValue="MAX" />
+        </p:selectOneRadio>
+ </p:row>
+ <p:row>
+ <p:outputLabel for="console" value="totalCost"/>  <p:selectOneRadio id="console" value="#{olapController.totalCost}">
+            <f:selectItem itemLabel="SUM" itemValue="SUM" />
+            <f:selectItem itemLabel="AVG" itemValue="AVG" />
+            <f:selectItem itemLabel="MIN" itemValue="MIN" />
+            <f:selectItem itemLabel="MAX" itemValue="MAX" />
+        </p:selectOneRadio>
+ </p:row>
+ <p:row>
+ <p:outputLabel for="console" value="Margin"/>  <p:selectOneRadio id="console" value="#{olapController.marginFunction}">
+            <f:selectItem itemLabel="SUM" itemValue="SUM" />
+            <f:selectItem itemLabel="AVG" itemValue="AVG" />
+            <f:selectItem itemLabel="MIN" itemValue="MIN" />
+            <f:selectItem itemLabel="MAX" itemValue="MAX" />
+        </p:selectOneRadio>
+ </p:row>
+</p:panelGrid>
 </p:column>
 </p:row>
 <p:row>
 <p:column>
-<p:dataTable>
-</p:dataTable>
+</p:column>
+<p:tree id="tree" value="#{columnManagerView.availableColumns}" var="column" style="margin-bottom:20px">
+        <p:treeNode>
+            <h:outputText value="#{column}" />
+        </p:treeNode>
+ 
+        <p:treeNode type="column" icon="ui-icon-grip-dotted-vertical">
+            <h:outputText value="#{column.property}" />
+        </p:treeNode>
+    </p:tree>
+<p:column>
+    <p:remoteCommand name="treeToTable" actionListener="#{columnManagerView.treeToTable}" update="tree cars" oncomplete="initDND()"/>
+    <p:remoteCommand name="tableToTree" actionListener="#{columnManagerView.tableToTree}" update="tree cars" oncomplete="initDND()"/>
+    <p:dataTable id="cars" var="car" value="#{columnManagerView.tableObjects}">                    
+        <p:columns value="#{columnManagerView.columns}" var="column">
+            <f:facet name="header">
+                <h:outputText style="float:left;display:block;height:20px;width:10px;border:0 none;" styleClass="droppoint dropleft" />                           
+                <h:outputText style="float:right;display:block;height:20px;width:10px;border:0 none;" styleClass="droppoint dropright" />
+                <h:outputText value="#{column.header}" />
+            </f:facet>
+ 
+            <h:outputText value="#{car[column.property]}" />
+        </p:columns>
+    </p:dataTable>
 </p:column>
 </p:row>
 

@@ -19,7 +19,8 @@ public class ShippingMethod {
 	
 	@Column(name="METHOD_NAME", nullable=false)
 	private String name;
-	
+	@Column(nullable=false)
+	private Timestamp modfiedDate;
 	//slowly changing dimensions 
 	
 
@@ -58,6 +59,12 @@ public class ShippingMethod {
 		}
 		public void setName(String name) {
 			this.name = name;
+		}
+		public Timestamp getModfiedDate() {
+			return modfiedDate;
+		}
+		public void setModfiedDate(Timestamp modfiedDate) {
+			this.modfiedDate = modfiedDate;
 		}
 	
 }

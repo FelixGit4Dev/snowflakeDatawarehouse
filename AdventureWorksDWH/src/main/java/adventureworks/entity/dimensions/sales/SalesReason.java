@@ -1,8 +1,10 @@
 package adventureworks.entity.dimensions.sales;
 
 import java.io.Serializable;
+import java.sql.Time;
 import java.sql.Timestamp;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -23,9 +25,18 @@ public class SalesReason implements Serializable {
 	@Id
 	 @GeneratedValue(strategy=GenerationType.IDENTITY)
 	 private long salesReasonId;
-	 
+	 private long salesReasonTypeId;
 		private Timestamp fromDate;
 		private Timestamp toDate;
+		
+		@Column(nullable=false)
+		private Timestamp modfiedDate;
+		public Timestamp getModfiedDate() {
+			return modfiedDate;
+		}
+		public void setModfiedDate(Timestamp modfiedDate) {
+			this.modfiedDate = modfiedDate;
+		}
 		private String name;
 		public String getName() {
 			return name;
@@ -50,6 +61,25 @@ public class SalesReason implements Serializable {
 		}
 		public void setToDate(Timestamp toDate) {
 			this.toDate = toDate;
+		}
+		public long getSalesReasonTypeId() {
+			return salesReasonTypeId;
+		}
+		public void setSalesReasonTypeId(long salesReasonTypeId) {
+			this.salesReasonTypeId = salesReasonTypeId;
+		}
+		public SalesReason(long salesReasonTypeId, Timestamp fromDate, Timestamp toDate, 
+				String name) {
+			super();
+			this.salesReasonTypeId = salesReasonTypeId;
+			this.fromDate = fromDate;
+			this.toDate = toDate;
+			
+			this.name = name;
+		}
+		public SalesReason() {
+			super();
+			// TODO Auto-generated constructor stub
 		} 
 	
 }
