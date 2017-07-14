@@ -1,6 +1,7 @@
 package visualization.controller;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.enterprise.context.SessionScoped;
@@ -57,7 +58,8 @@ public class OlapController implements Serializable{
 	
 	
 	// Filter
-	private String timeFilter;
+	private String orderDateFilter;
+	private String shipDateFilter;
 	private String placeFilter;
 	private String productFilter;
 	private String salesReasonFilter;
@@ -72,6 +74,90 @@ public class OlapController implements Serializable{
 	
 	
 	
+	
+	
+	public HashMap<String, HashMap<String, List<String>>> evaluateDimensions(){
+		HashMap<String, HashMap<String,List<String>>> result= new HashMap<>();
+	HashMap<String, List<String>> innerJoin= new HashMap<>();
+	HashMap<String, List<String>> where= new HashMap<>();
+	HashMap<String, List<String>> groupBy= new HashMap<>();
+	HashMap<String, List<String>> select= new HashMap<>();
+	evauluateTimeDimension(innerJoin,where,groupBy,select);
+	evauluatePlaceDimension();
+	evauluateCustomerDimension();
+	evauluateSalesDimension();
+	return result;
+	}
+	
+	
+	private void evauluateSalesDimension() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	private void evauluateCustomerDimension() {
+		// TODO Auto-generated method stub
+		
+	}
+
+
+	private void evauluatePlaceDimension() {
+		if(!"".equals(this.billToDimensionLevel)){
+			
+		}
+		if(!"".equals(this.orderToDimensionLevel)){
+			
+		}
+		if(groupByShipTo){
+			
+		}
+		if(groupByBillTo){
+			
+		}
+	}
+
+
+	private void evauluateTimeDimension(HashMap<String, List<String>> innerJoin, HashMap<String, List<String>> where, HashMap<String, List<String>> groupBy, HashMap<String, List<String>> select) {
+		if(!"".equals(shipDateDimensionLevel)){
+			switch (shipDateDimensionLevel) {
+			case "DAY":
+				break;
+			case"MONTH": break;
+
+			case "YEAR": break; 
+			default:
+				break;
+			}
+			
+			if(shipDateFilter!=null && !"".equals(shipDateFilter)){
+				
+			}
+		}
+if(!"".equals(orderDateDimensionLevel)){
+	switch (orderDateDimensionLevel) {
+	case "DAY":
+		break;
+	case"MONTH": break;
+
+	case "YEAR": break; 
+	default:
+		break;
+	}
+			if(orderDateFilter!=null && !"".equals(orderDateFilter)){
+				
+			}
+		}
+if(groupByOrderDate){
+	
+}
+if(groupByShipDate){
+	
+}
+		
+	}
+
+
 	public List<String> completeText(String query){
 		return null;
 	
@@ -80,7 +166,8 @@ public class OlapController implements Serializable{
 	
 	
 	public void buildAndExecuteQuery(){
-	String olapQuery = this.builder.assembleOlapQuery();
+		HashMap<String, HashMap<String, List<String>>> map =evaluateDimensions();	
+	String olapQuery = this.builder.assembleOlapQuery(map);
 	if(builder.isSingleColumnResult()){
 dao.executeOlapQuerySingleColumn(olapQuery);		
 	}else{
@@ -99,7 +186,10 @@ dao.executeOlapQueryMulticolumns(olapQuery);
 	public void resetTimeDimension(){
 		this.orderDateDimensionLevel="";
 		this.shipDateDimensionLevel="";
-		this.timeFilter="";
+		this.orderDateFilter="";
+		this.shipDateFilter="";
+		this.groupByOrderDate=false;
+		this.groupByShipDate=false;
 	}
 	
 	
@@ -156,12 +246,6 @@ dao.executeOlapQueryMulticolumns(olapQuery);
 		this.marginFunction = margin;
 	}
 
-	public String getTimeFilter() {
-		return timeFilter;
-	}
-	public void setTimeFilter(String timeFilter) {
-		this.timeFilter = timeFilter;
-	}
 	public String getProductDimensionLevel() {
 		return productDimensionLevel;
 	}

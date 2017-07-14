@@ -314,6 +314,14 @@ Store
 </p:selectOneRadio>
 </h:panelGrid>
 </p:tab>
+<p:tab title="Custom Query">
+<h:panelGrid columns="2">
+<p:outputLabel value="Native MySql Query" />
+<p:inputTextarea value="#{olapController.nativeQuery}"/>
+<p:commandButton value="Show Schema Diagramms"  actionListener="#{olapController.showSchemaDialog}"/><p:commandButton value="Execute" actionListener="#{olapController.executeNativeQuery}"/>
+</h:panelGrid>
+<p:outputLabel value="#{olapController.errorMessage}"/>
+</p:tab> 
  </p:accordionPanel>
 </p:column>
 </p:row>

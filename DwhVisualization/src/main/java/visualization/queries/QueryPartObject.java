@@ -6,6 +6,7 @@ public class QueryPartObject {
 	private  String tableName;
 	private String alias;
 	private String joinAttribute;
+	private String filterAttribute;
 	public String getTableName() {
 		return tableName;
 	}
@@ -33,6 +34,12 @@ public class QueryPartObject {
 	public QueryPartObject() {
 		super();
 		// TODO Auto-generated constructor stub
+	}
+	public String getFilterAttribute() {
+		return filterAttribute;
+	}
+	public void setFilterAttribute(String filterAttribute) {
+		this.filterAttribute = filterAttribute;
 	}
 	
 }
