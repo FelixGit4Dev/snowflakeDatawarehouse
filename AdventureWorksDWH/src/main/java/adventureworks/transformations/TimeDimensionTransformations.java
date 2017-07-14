@@ -62,7 +62,7 @@ for(LocalDate date : totalDates){
 		 now= new Timestamp(System.currentTimeMillis());
 		 m.setModfiedDate(now);
 		 m = this.targetDao.persistMonth(m);
-		  System.out.println(firstDay.format(formatterMonth));
+		 // System.out.println(firstDay.format(formatterMonth));
 		  firstDay = firstDay.plusMonths(1);	 
 		  LocalDate firstDayMonth = firstDay.with(firstDayOfMonth()); // 2015-01-01
 			LocalDate lastDayMonth = firstDay.with(lastDayOfMonth()); // 2015-12-31
@@ -71,7 +71,7 @@ for(LocalDate date : totalDates){
 			 now= new Timestamp(System.currentTimeMillis());
 			 d.setModfiedDate(now);
 			this.targetDao.persistDay(d);
-			  System.out.println(firstDayMonth.format(formatterDay));
+			 // System.out.println(firstDayMonth.format(formatterDay));
 			  firstDayMonth = firstDayMonth.plusDays(1);
 			}	  
 		}

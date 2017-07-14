@@ -1,0 +1,375 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html  xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:h="http://java.sun.com/jsf/html"
+    xmlns:f="http://java.sun.com/jsf/core"
+    xmlns:c="http://java.sun.com/jsp/jstl/core"
+    xmlns:p="http://primefaces.org/ui">
+    <h:head>
+    <script type="text/javascript">
+    function initDND() {
+        $('.ui-treenode-leaf').draggable({
+           helper: 'clone',
+           scope: 'treetotable',
+           zIndex: ++PrimeFaces.zindex
+        });
+ 
+        $('.ui-datatable .droppoint').droppable({
+           activeClass: 'ui-state-active',
+           hoverClass: 'ui-state-highlight',
+           tolerance: 'pointer',
+           scope: 'treetotable',
+           drop: function(event, ui) {
+               var property = ui.draggable.find('.ui-treenode-label').text(),
+               droppedColumnId = $(this).parents('th:first').attr('id'),
+               dropPos = $(this).hasClass('dropleft') ? 0 : 1;
+ 
+               treeToTable([
+                    {name: 'property', value:  property}
+                   ,{name: 'droppedColumnId', value: droppedColumnId}
+                   ,{name: 'dropPos', value: dropPos}
+               ]);
+           }
+        });
+ 
+        $('.ui-datatable th').draggable({
+           scope: 'tabletotree',
+           helper: function() {
+               var th = $(this);
+ 
+               return th.clone().appendTo(document.body).css('width', th.width());
+           }
+        });
+ 
+        $('.ui-tree').droppable({
+           helper: 'clone',
+           scope: 'tabletotree',
+           activeClass: 'ui-state-active',
+           hoverClass: 'ui-state-highlight',
+           tolerance: 'touch',
+           drop: function(event, ui) {                               
+               tableToTree([
+                   {name: 'colIndex', value:  ui.draggable.index()}
+               ]);
+           }
+        });
+    }
+ 
+    $(function() {
+        initDND();
+    });
+</script>
+    </h:head>
+    <h:body> 
+  
+     
+       <h:form > 
+<p:panelGrid>
+<p:row>
+<p:column style="text-align: center;">
+  <p:outputLabel value="AdventureWorks Datawarehouse OLAP" style="font-weight:bold;font-size:30px;"/>
+    </p:column>
+</p:row>
+<p:row>
+<p:column>
+ <p:accordionPanel multiple="true">
+  <p:tab title="Dimensions">
+<p:panelGrid>
+  
+ <p:row>
+ <p:column style="vertical-align:top">
+ <p:outputLabel value="Time" style="font-weight:bold;font-size:20px;"/><br/><br/>
+ <h:panelGroup id="orderDatePanelGroup">
+  <p:outputLabel value="OrderDate" style="font-weight:bold"/><br/>
+<h:panelGrid columns="2">
+<p:outputLabel value="Level: "/>   <p:selectOneMenu   id="orderDateLevel" value="#{olapController.orderDateDimensionLevel}">
+  <p:ajax event="change" update="orderDatePanelGroup"  listener="#{olapController.test}"/>
+  <f:selectItem itemLabel="" itemValue="" />
+            <f:selectItem itemLabel="DAY" itemValue="DAY" />
+            <f:selectItem itemLabel="MONTH" itemValue="MONTH" />
+            <f:selectItem itemLabel="YEAR" itemValue="YEAR" />    
+        </p:selectOneMenu> 
+        <p:outputLabel value="Filter: "/><p:inputMask id="orderDateMask" value="#{olapController.timeFilter}" mask="#{olapController.orderDateMask}" /> 
+     </h:panelGrid>   
+ </h:panelGroup >
+ <h:panelGroup id="shipDatePanelGroup">
+ <p:outputLabel value="Shipdate" style="font-weight:bold"/> <br/>
+<p:outputLabel value="Level: "/>   <p:selectOneMenu  id="shipdateLevel" value="#{olapController.shipDateDimensionLevel}">
+  <p:ajax event="change" update="shipDateMask"  listener="#{olapController.test}"/>
+  <f:selectItem itemLabel="" itemValue="" />
+            <f:selectItem itemLabel="DAY" itemValue="DAY" />
+            <f:selectItem itemLabel="MONTH" itemValue="MONTH" />
+            <f:selectItem itemLabel="YEAR" itemValue="YEAR" />    
+        </p:selectOneMenu> 
+        <br/> 
+        <p:outputLabel value="Filter: "/><p:inputMask id="shipDateMask" value="#{olapController.timeFilter}" mask="#{olapController.shipDateMask}" />      
+ </h:panelGroup>
+  <br/><br/> 
+Group by:<br/> 
+<h:outputText value="Shipment Date: " /><p:selectBooleanCheckbox value="#{olapController.groupByShipDate}" /><br/>
+<h:outputText value="Order Date: " /><p:selectBooleanCheckbox value="#{olapController.groupByOrderDate}" />
+<br/><br/> 
+  <p:commandButton value="ResetTimeDimension" id="resetTime" update="" actionListener="#{olapController.resetTimeDimension}" />
+ 
+ </p:column>
+  <p:column style="vertical-align:top">
+ <p:outputLabel value="Place" style="font-weight:bold;font-size:20px;"/><br/><br/>
+  <h:panelGroup id="billToPanelGroup">
+   <p:outputLabel value="BillTo" style="font-weight:bold"/><br/>
+  <h:panelGrid columns="2">
+  <p:outputLabel value="Level: "/>   <p:selectOneMenu   id="billto" value="#{olapController.billToDimensionLevel}">
+  <f:selectItem itemLabel="" itemValue="" />
+            <f:selectItem itemLabel="TERRITORY" itemValue="TERRITORY" />
+            <f:selectItem itemLabel="COUNTRY" itemValue="COUNTRY" />
+            <f:selectItem itemLabel="STATE/PROVINCE" itemValue="STATE/PROVINCE" />
+            <f:selectItem itemLabel="CITY" itemValue="CITY" />   
+            </p:selectOneMenu> 
+            <p:outputLabel value="Filter: "/><p:autoComplete id="filterbill" value="#{olapController.placeFilter}" queryDelay="1000" completeMethod="#{olapController.completeText}" />
+ </h:panelGrid>
+  </h:panelGroup >
+  <h:panelGroup id="orderToToPanelGroup">
+   <p:outputLabel value="Ship To" style="font-weight:bold"/><br/>
+  <p:outputLabel value="Level: "/>   <p:selectOneMenu   id="orderto" value="#{olapController.orderToDimensionLevel}">
+   <f:selectItem itemLabel="" itemValue="" />
+            <f:selectItem itemLabel="TERRITORY" itemValue="TERRITORY" />
+            <f:selectItem itemLabel="COUNTRY" itemValue="COUNTRY" />
+            <f:selectItem itemLabel="STATE/PROVINCE" itemValue="STATE/PROVINCE" />
+            <f:selectItem itemLabel="CITY" itemValue="CITY" />   
+          </p:selectOneMenu>
+           <br/>
+            <p:outputLabel value="Filter: "/><p:autoComplete id="filterorder" value="#{olapController.placeFilter}" queryDelay="1000" completeMethod="#{olapController.completeText}" />
+  </h:panelGroup>
+  <br/>
+  <br/> 
+Group by:<br/> 
+<h:outputText value="Bill to: " /><p:selectBooleanCheckbox value="#{olapController.groupByBillTo}" /><br/>
+<h:outputText value="Ship to: " /><p:selectBooleanCheckbox value="#{olapController.groupByShipTo}" />
+<br/><br/> 
+  <p:commandButton value="ResetPlaceDimension" id="resetPlace" update="orderToToPanelGroup,billToPanelGroup" actionListener="#{olapController.resetPlaceDimension}" />
+ 
+  </p:column>
+ <p:column  style="vertical-align:top">
+ <p:outputLabel value="Product" style="font-weight:bold;font-size:20px;"/><br/><br/>
+ <h:panelGroup>
+ Product
+ <h:panelGrid columns="2">
+<p:outputLabel value="Level"/><p:selectOneMenu id="productLevel" value="#{olapController.productDimensionLevel}" >
+<f:selectItem itemLabel="" itemValue="" />
+            <f:selectItem itemLabel="PRODUCT" itemValue="PRODUCT" />
+            <f:selectItem itemLabel="SUBCATEGORY" itemValue="SUBCATEGORY" />
+            <f:selectItem itemLabel="CATEGORY" itemValue="CATEGORY" />        
+        </p:selectOneMenu>
+<p:outputLabel value="Filter: "/> <p:inputText value="#{olapController.productFilter}"/>
+ <p:outputLabel value="Product Line"/><p:selectOneMenu id="productLine" value="#{olapController.productLineDimension}" >
+<f:selectItem itemLabel="" itemValue="" />
+            <f:selectItem itemLabel="MOUNTAINBIKE" itemValue="M" />
+            <f:selectItem itemLabel="TOURENRAD" itemValue="T" />
+            <f:selectItem itemLabel="STANDARDRAD" itemValue="S" />        
+        </p:selectOneMenu>
+<p:outputLabel value="Product Class"/> <p:selectOneMenu id="productClassLevel" value="#{olapController.productClassDimension}" >
+<f:selectItem itemLabel="" itemValue="" />
+            <f:selectItem itemLabel="HOCH" itemValue="H" />
+            <f:selectItem itemLabel="MITTEL" itemValue="M" />
+            <f:selectItem itemLabel="NIEDRIG" itemValue="L" />        
+        </p:selectOneMenu>
+ <p:outputLabel value="Product Style"/><p:selectOneMenu id="productstyleLevel" value="#{olapController.productStyleDimension}" >
+<f:selectItem itemLabel="" itemValue="" />
+            <f:selectItem itemLabel="DAMENRAD" itemValue="W" />
+            <f:selectItem itemLabel="HRRENRAD" itemValue="M" />
+            <f:selectItem itemLabel="UNIVERSALRAD" itemValue="U" />        
+        </p:selectOneMenu>
+<p:outputLabel value="Make: "/><p:selectOneMenu id="make" value="#{olapController.makedimension}" >
+<f:selectItem itemLabel="" itemValue="" />
+            <f:selectItem itemLabel="SELFMADE" itemValue="M" />
+            <f:selectItem itemLabel="BOUGHT" itemValue="B" />        
+        </p:selectOneMenu>
+      </h:panelGrid>          
+ </h:panelGroup>
+ <p:commandButton value="ResetProductDimension" id="resetProduct" update="orderToToPanelGroup,billToPanelGroup" actionListener="#{olapController.resetPlaceDimension}" />
+ </p:column>
+ <p:column style="vertical-align:top">
+  <p:outputLabel value="Sales Dimensions (Misc)" style="font-weight:bold;font-size:20px;"/><br/><br/>
+  <h:panelGroup>
+  <p:outputLabel value="SalesReason" style="font-weight:bold"/> <br/>
+  <h:panelGrid columns="2">
+  <p:outputLabel value="Level: "/><p:selectOneMenu id="salesReason" value="#{olapController.salesReasonDimensionLevel}" >
+  <f:selectItem itemLabel="" itemValue="" />
+            <f:selectItem itemLabel="SALESREASON" itemValue="SALESREASON" />
+            <f:selectItem itemLabel="REASONTYPE" itemValue="REASONTYPE" /> 
+            </p:selectOneMenu>
+             <p:outputLabel value="Filter: "/><p:inputText value="#{olapController.salesReasonFilter}"/> 
+             </h:panelGrid>
+   </h:panelGroup>             
+        <br/>
+        <h:panelGroup>
+        <p:outputLabel value="Other Sales Dimensions" style="font-weight:bold"/>
+         <h:panelGrid columns="2">
+        <p:outputLabel value="SalesPerson"/><p:autoComplete id="filterSalesPerson" value="#{olapController.placeFilter}" queryDelay="1000" completeMethod="#{olapController.completeText}" />
+        <p:outputLabel value="SalesChannel"/><p:selectOneMenu id="salesChannel" value="#{olapController.productDimensionLevel}" >
+<f:selectItem itemLabel="" itemValue="" />
+            <f:selectItem itemLabel="ONLINE" itemValue="ONLINE" />
+            <f:selectItem itemLabel="DIREKT" itemValue="DIREKT" />     
+        </p:selectOneMenu>
+        <p:outputLabel value="Shipping Method:"/><p:selectOneMenu id="shippingMethod" value="#{olapController.productDimensionLevel}" >
+<f:selectItem itemLabel="" itemValue="" />
+            <f:selectItem itemLabel="PRODUCT" itemValue="PRODUCT" />
+            <f:selectItem itemLabel="SUBCATEGORY" itemValue="SUBCATEGORY" />
+            <f:selectItem itemLabel="CATEGORY" itemValue="CATEGORY" />        
+        </p:selectOneMenu>
+ </h:panelGrid>
+  </h:panelGroup>
+ <p:commandButton value="ResetSalesDimension" id="resetSales" update="orderToToPanelGroup,billToPanelGroup" actionListener="#{olapController.resetPlaceDimension}" />
+ </p:column>
+  <p:column style="vertical-align:top">
+  <h:panelGroup>
+  <p:outputLabel value="Customer" style="font-weight:bold;font-size:20px;"/><br/><br/>
+Customer Type <p:selectOneMenu id="customerType" value="#{olapController.productStyleDimension}" >
+<f:selectItem itemLabel="" itemValue="" />
+            <f:selectItem itemLabel="INDIVIDUAL" itemValue="INDIVIDUAL" />
+            <f:selectItem itemLabel="STORE" itemValue="STORE" />
+            <f:selectItem itemLabel="ALL" itemValue="ALL" />        
+        </p:selectOneMenu><br/>
+
+ <h:panelGroup id="customerRegionPanelGroup">
+Customer Region<br/>
+  <p:outputLabel value="Level: "/>   <p:selectOneMenu   id="customerRegion" value="#{olapController.billToDimensionLevel}">
+  <f:selectItem itemLabel="" itemValue="" />
+            <f:selectItem itemLabel="TERRITORY" itemValue="TERRITORY" />
+            <f:selectItem itemLabel="COUNTRY" itemValue="COUNTRY" />
+            <f:selectItem itemLabel="STATE/PROVINCE" itemValue="STATE/PROVINCE" />
+            <f:selectItem itemLabel="CITY" itemValue="CITY" />   
+            </p:selectOneMenu> <br/>
+            <p:outputLabel value="Filter: "/><p:autoComplete id="filterCustomerRegion" value="#{olapController.placeFilter}" queryDelay="1000" completeMethod="#{olapController.completeText}" />
+ 
+  </h:panelGroup >       
+Individual 
+Store
+       
+        
+  
+  </h:panelGroup>
+  <p:commandButton value="ResetCustomerDimension" id="resetCustomer" update="orderToToPanelGroup,billToPanelGroup" actionListener="#{olapController.resetPlaceDimension}" />
+ 
+ </p:column>
+ </p:row>
+ </p:panelGrid>
+ </p:tab>
+  <p:tab title="Kennzahlen">
+<h:panelGrid columns="8" >
+ <p:outputLabel for="quantity" value="Quantity: "  style="font-weight:bold;"/>  <p:selectOneRadio id="quantity" value="#{olapController.quantityFunction}">
+            <f:selectItem itemLabel="SUM" itemValue="SUM" />
+            <f:selectItem itemLabel="AVG" itemValue="AVG" />
+            <f:selectItem itemLabel="MIN" itemValue="MIN" />
+            <f:selectItem itemLabel="MAX" itemValue="MAX" />
+        </p:selectOneRadio>
+ 
+ <p:outputLabel for="unitPrice" value="Unit Price: " style="font-weight:bold;"/>  <p:selectOneRadio id="unitPrice" value="#{olapController.unitPriceFunction}">
+            <f:selectItem itemLabel="SUM" itemValue="SUM" />
+            <f:selectItem itemLabel="AVG" itemValue="AVG" />
+            <f:selectItem itemLabel="MIN" itemValue="MIN" />
+            <f:selectItem itemLabel="MAX" itemValue="MAX" />
+        </p:selectOneRadio>
+      
+ <p:outputLabel for="taxAmt" value="taxAmt: " style="font-weight:bold;"/>  <p:selectOneRadio id="taxAmt" value="#{olapController.taxAmtFunction}">
+            <f:selectItem itemLabel="SUM" itemValue="SUM" />
+            <f:selectItem itemLabel="AVG" itemValue="AVG" />
+            <f:selectItem itemLabel="MIN" itemValue="MIN" />
+            <f:selectItem itemLabel="MAX" itemValue="MAX" />
+        </p:selectOneRadio>
+
+ <p:outputLabel for="discount" value="  discount: " style="font-weight:bold;"/>  <p:selectOneRadio id="discount" value="#{olapController.discountFunction}">
+            <f:selectItem itemLabel="SUM" itemValue="SUM" />
+            <f:selectItem itemLabel="AVG" itemValue="AVG" />
+            <f:selectItem itemLabel="MIN" itemValue="MIN" />
+            <f:selectItem itemLabel="MAX" itemValue="MAX" />
+        </p:selectOneRadio>
+
+ <p:outputLabel for="total" value="  Total: " style="font-weight:bold;"/>  <p:selectOneRadio id="total" value="#{olapController.totalFunction}">
+            <f:selectItem itemLabel="SUM" itemValue="SUM" />
+            <f:selectItem itemLabel="AVG" itemValue="AVG" />
+            <f:selectItem itemLabel="MIN" itemValue="MIN" />
+            <f:selectItem itemLabel="MAX" itemValue="MAX" />
+        </p:selectOneRadio>
+
+ <p:outputLabel for="standartCost" value="  StandartCost: " style="font-weight:bold;"/>  <p:selectOneRadio id="standartCost" value="#{olapController.standartCostFunction}">
+            <f:selectItem itemLabel="SUM" itemValue="SUM" />
+            <f:selectItem itemLabel="AVG" itemValue="AVG" />
+            <f:selectItem itemLabel="MIN" itemValue="MIN" />
+            <f:selectItem itemLabel="MAX" itemValue="MAX" />
+        </p:selectOneRadio>
+
+ <p:outputLabel for="totalCost" value="  totalCost: " style="font-weight:bold;"/>  <p:selectOneRadio id="totalCost" value="#{olapController.totalCost}">
+            <f:selectItem itemLabel="SUM" itemValue="SUM" />
+            <f:selectItem itemLabel="AVG" itemValue="AVG" />
+            <f:selectItem itemLabel="MIN" itemValue="MIN" />
+            <f:selectItem itemLabel="MAX" itemValue="MAX" />
+        </p:selectOneRadio>
+
+ <p:outputLabel for="margin" value="  Margin: " style="font-weight:bold;"/>  <p:selectOneRadio id="margin" value="#{olapController.marginFunction}">
+            <f:selectItem itemLabel="SUM" itemValue="SUM" />
+            <f:selectItem itemLabel="AVG" itemValue="AVG" />
+            <f:selectItem itemLabel="MIN" itemValue="MIN" />
+            <f:selectItem itemLabel="MAX" itemValue="MAX" />
+</p:selectOneRadio>
+</h:panelGrid>
+</p:tab>
+ </p:accordionPanel>
+</p:column>
+</p:row>
+<p:row>
+<p:column>
+<p:panelGrid >
+<p:row>
+<p:column style="width:10%;vertical-align:top">
+<p:outputLabel value="Drag and Drop Columns" style="font-weight:bold;font-size:20px"/>
+
+<p:tree id="tree" value="#{columnManagerView.availableColumns}" var="column" style="width:270px;margin-bottom:20px">
+        <p:treeNode>
+            <h:outputText value="#{column}" />
+        </p:treeNode>
+ 
+        <p:treeNode type="column" icon="ui-icon-grip-dotted-vertical">
+            <h:outputText value="#{column.property}" />
+        </p:treeNode>
+    </p:tree>
+    
+    </p:column>
+    <p:column style="width:90%;vertical-align:top" >
+    <p:remoteCommand name="treeToTable" actionListener="#{columnManagerView.treeToTable()}" update="tree cars" oncomplete="initDND()"/>
+    <p:remoteCommand name="tableToTree" actionListener="#{columnManagerView.tableToTree()}" update="tree cars" oncomplete="initDND()"/>
+    <p:dataTable  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} "  rowsPerPageTemplate="5,10,15"  paginator="true" id="cars" var="car" value="#{columnManagerView.tableObjects}">                    
+        <f:facet name="header">
+       OLAP-Cube
+    </f:facet>
+    <f:facet name="{Exporters}">
+            <h:commandLink>
+                <p:graphicImage value="resources/images/pdf.png" width="24"/>
+                <p:dataExporter type="pdf" target="cars" fileName="OLAP_RESULTS"/>
+            </h:commandLink>
+            <h:commandLink>
+                <p:graphicImage value="resources/images/csv.png" width="24"/>
+                <p:dataExporter type="csv" target="cars" fileName="OLAP_RESULTS" />
+            </h:commandLink>      
+        </f:facet>
+        <p:columns value="#{columnManagerView.columns}" var="column">
+            <f:facet name="header">
+                <h:outputText style="float:left;display:block;height:20px;width:10px;border:0 none;" styleClass="droppoint dropleft" />                           
+                <h:outputText style="float:right;display:block;height:20px;width:10px;border:0 none;" styleClass="droppoint dropright" />
+                <h:outputText value="#{column.header}" />
+            </f:facet>
+ 
+            <h:outputText value="#{car[column.property]}" />
+        </p:columns>
+    </p:dataTable>
+    </p:column>
+    </p:row>
+    </p:panelGrid>
+</p:column>
+</p:row>
+
+</p:panelGrid>    
+ </h:form>
+    
+    </h:body>
+</html>

@@ -36,7 +36,7 @@ public class PlaceTransformation implements Transformation{
 
         List<Salesterritory> salesHeaders;
         HashMap<String, Countryregion> countryMap= new HashMap<String, Countryregion>();
-        List<Countryregion> countries= sourceDao.getAllCountries();
+        List<Countryregion> countries= null;//sourceDao.getAllCountries();
         for(Countryregion country: countries){
         countryMap.put(country.getCountryRegionCode(), country);	
         }
@@ -46,7 +46,7 @@ public class PlaceTransformation implements Transformation{
             for (Salesterritory salesHeader : salesHeaders)
             {
             	
-            		Territory territory= new  Territory(new Timestamp(0),null,salesHeader.g);
+            		Territory territory= new  Territory(new Timestamp(0),null,salesHeader.getName(),salesHeader.getGroup());
             		
             			
             	}
@@ -61,7 +61,7 @@ public class PlaceTransformation implements Transformation{
 	
 	
 	public void createStates(long id){
-	List<Stateprovince> states= 	sourceDao.getStatesByTerritoryId( id);	
+//	List<Stateprovince> states= 	sourceDao.getStatesByTerritoryId( id);	
 	}
 
 	

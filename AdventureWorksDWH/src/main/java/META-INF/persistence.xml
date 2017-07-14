@@ -4,6 +4,31 @@
          <exclude-unlisted-classes>true</exclude-unlisted-classes>
           <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
   <jta-data-source>java:jboss/datasources/DwhTarget</jta-data-source>
+              <class>adventureworks.entity.EtlMetaInformation</class>
+              <class>adventureworks.entity.dimensions.customer.AgeGroup</class>
+              <class>adventureworks.entity.dimensions.customer.Customer</class>
+              <class>adventureworks.entity.dimensions.customer.Gender</class>
+              <class>adventureworks.entity.dimensions.customer.HomeOwner</class>
+              <class>adventureworks.entity.dimensions.customer.Individual</class>
+              <class>adventureworks.entity.dimensions.customer.Store</class>
+              <class>adventureworks.entity.dimensions.customer.YearlyIncomeGroup</class>
+              <class>adventureworks.entity.dimensions.place.City</class>
+              <class>adventureworks.entity.dimensions.place.Country</class>
+              <class>adventureworks.entity.dimensions.place.State</class>
+              <class>adventureworks.entity.dimensions.place.Territory</class>
+              <class>adventureworks.entity.dimensions.product.Category</class>
+              <class>adventureworks.entity.dimensions.product.Product</class>
+              <class>adventureworks.entity.dimensions.product.Subcategory</class>
+              <class>adventureworks.entity.dimensions.sales.SalesChannel</class>
+              <class>adventureworks.entity.dimensions.sales.SalesPerson</class>
+              <class>adventureworks.entity.dimensions.sales.SalesReason</class>
+              <class>adventureworks.entity.dimensions.sales.SalesReasonType</class>
+              <class>adventureworks.entity.dimensions.sales.ShippingMethod</class>
+              <class>adventureworks.entity.dimensions.time.Day</class>
+              <class>adventureworks.entity.dimensions.time.Month</class>
+              <class>adventureworks.entity.dimensions.time.Week</class>
+              <class>adventureworks.entity.dimensions.time.Year</class>
+              <class>adventureworks.entity.facts.SalesFact</class>
               <class>adventureworks.entity.maps.Category_MAP</class>
             <class>adventureworks.entity.maps.City_MAP</class>
             <class>adventureworks.entity.maps.Country_MAP</class>
@@ -16,26 +41,6 @@
             <class>adventureworks.entity.maps.Store_MAP</class>
             <class>adventureworks.entity.maps.Subcategory_MAP</class>
             <class>adventureworks.entity.maps.Territory_MAP</class>
-            <class>adventureworks.entity.EtlMetaInformation</class>
-            <class>adventureworks.entity.dimensions.customer.Customer</class>
-            <class>adventureworks.entity.dimensions.place.City</class>
-            <class>adventureworks.entity.dimensions.place.Country</class>
-            <class>adventureworks.entity.dimensions.place.State</class>
-            <class>adventureworks.entity.dimensions.place.Territory</class>
-            <class>adventureworks.entity.dimensions.product.Category</class>
-            <class>adventureworks.entity.dimensions.product.Product</class>
-            <class>adventureworks.entity.dimensions.product.Subcategory</class>
-            <class>adventureworks.entity.dimensions.sales.SalesChannel</class>
-            <class>adventureworks.entity.dimensions.sales.SalesPerson</class>
-            <class>adventureworks.entity.dimensions.sales.SalesReason</class>
-            <class>adventureworks.entity.dimensions.sales.SalesReasonType</class>
-            <class>adventureworks.entity.dimensions.sales.ShippingMethod</class>
-            <class>adventureworks.entity.dimensions.customer.Store</class>
-            <class>adventureworks.entity.dimensions.time.Day</class>
-            <class>adventureworks.entity.dimensions.time.Month</class>
-            <class>adventureworks.entity.dimensions.time.Week</class>
-            <class>adventureworks.entity.dimensions.time.Year</class>
-            <class>adventureworks.entity.facts.SalesFact</class>
         <properties>
  <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
 <!--             <property name="hibernate.show_sql" value="true" /> -->

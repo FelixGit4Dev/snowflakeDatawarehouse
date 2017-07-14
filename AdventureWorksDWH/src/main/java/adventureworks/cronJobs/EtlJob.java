@@ -41,9 +41,16 @@ private	SalesFactTransformation factTransformation;
 private	SalesTransformations salesTransformations;
 	@Inject
 private	TimeDimensionTransformations timeDimensionTransformations;
+	
+	
+	private boolean isRunning=false;
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		
+	if(isRunning){
+	log.info("an  ETL-Job is already rnning, no new job will be started");	
+	}
+	else{
+	isRunning=true;	
 		log.info("Beginning ETL Job: " + new Date());
 	EtlMetaInformation meta = new EtlMetaInformation();
 	Timestamp runTime= new  Timestamp(System.currentTimeMillis());
@@ -57,7 +64,8 @@ private	TimeDimensionTransformations timeDimensionTransformations;
 	this.targetDao.persistObject(meta);
 		
 	log.info("Finished ETL Job: " + new Date());
-		
+	isRunning=false;
+	}	
 	
 		
 	}
@@ -111,6 +119,16 @@ log.info("Started initializing Time Dimension: " + new Date());
 	
 	public void createEtlMetaInf(){
 		
+	}
+
+
+	public boolean isRunning() {
+		return isRunning;
+	}
+
+
+	public void setRunning(boolean isRunning) {
+		this.isRunning = isRunning;
 	}
 
 	
