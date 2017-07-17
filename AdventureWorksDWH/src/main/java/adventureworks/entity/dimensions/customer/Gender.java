@@ -50,6 +50,19 @@ public class Gender {
 	public void setModfiedDate(Timestamp modfiedDate) {
 		this.modfiedDate = modfiedDate;
 	}
+
+	public Gender() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public Gender(String genderCode, Timestamp modfiedDate, String gender) {
+		super();
+		this.genderCode = genderCode;
+		this.modfiedDate = modfiedDate;
+		this.gender = gender;
+	}
+	
 	
 	
 }

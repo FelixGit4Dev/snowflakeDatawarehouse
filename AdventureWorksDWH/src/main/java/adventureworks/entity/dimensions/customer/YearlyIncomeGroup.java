@@ -14,8 +14,15 @@ import javax.persistence.Table;
 public class YearlyIncomeGroup {
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	private long incomeId;
+	private String incomeGroupCode;
+	public String getIncomeGroupCode() {
+		return incomeGroupCode;
+	}
+
+	public void setIncomeGroupCode(String incomeGroupCode) {
+		this.incomeGroupCode = incomeGroupCode;
+	}
+
 	@Column(nullable=false)
 	private Timestamp modfiedDate;
 	public Timestamp getModfiedDate() {
@@ -28,13 +35,6 @@ public class YearlyIncomeGroup {
 
 	private String groupName;
 
-	public long getIncomeId() {
-		return incomeId;
-	}
-
-	public void setIncomeId(long incomeId) {
-		this.incomeId = incomeId;
-	}
 
 	public String getGroupName() {
 		return groupName;
@@ -49,10 +49,15 @@ public class YearlyIncomeGroup {
 		// TODO Auto-generated constructor stub
 	}
 
-	public YearlyIncomeGroup( String groupName) {
-		super();
 	
+
+	public YearlyIncomeGroup(String incomeGroupCode, Timestamp modfiedDate, String groupName) {
+		super();
+		this.incomeGroupCode = incomeGroupCode;
+		this.modfiedDate = modfiedDate;
 		this.groupName = groupName;
 	}
+
+	
 	
 }

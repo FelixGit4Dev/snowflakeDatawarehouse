@@ -18,6 +18,7 @@ public class Day {
 	private long dayId;
 	private long weekId;
 	private long monthId;
+	private Timestamp timeinMilis;
 	private String day;
 	@Column(nullable=false)
 	private Timestamp modfiedDate;
@@ -61,6 +62,12 @@ public class Day {
 	}
 	public void setModfiedDate(Timestamp modfiedDate) {
 		this.modfiedDate = modfiedDate;
+	}
+	public Timestamp getTimeinMilis() {
+		return timeinMilis;
+	}
+	public void setTimeinMilis(Timestamp timeinMilis) {
+		this.timeinMilis = timeinMilis;
 	}
 	
 	

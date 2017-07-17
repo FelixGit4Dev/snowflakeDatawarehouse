@@ -8,7 +8,7 @@
     xmlns:p="http://primefaces.org/ui">
     <h:head></h:head>
      <h:body>
-     <h:form>
+     <h:form id="controlForm">
      <p:panelGrid>
 <p:row>
 <p:column style="text-align: center;">
@@ -17,12 +17,13 @@
 </p:row>
 <p:row>
 <p:column style="text-align: center;">
-<p:commandButton value="Trigger ETL-Process" style="font-size:50px; font-weight:bold;width:600px,height:200px" id="ajax" update="growl" actionListener="#{etlViewController.triggerEtlJob()}" />
+<p:commandButton   value="Trigger ETL-Process" style="font-size:50px; font-weight:bold;width:600px,height:200px" id="ajax" update=":controlForm" disabled="#{etlJob.running}" actionListener="#{etlViewController.triggerEtlJob()}" />
+   <br/><br/> <p:outputLabel value="#{etlViewController.message}" style="font-weight:bold;color:red" />
     </p:column>
 </p:row>
 <p:row>
 <p:column style="text-align: center;">
- <p:dataTable var="car" value="#{etlViewController.etlMetaInformation}" rows="10"
+ <p:dataTable id="etlMetaTable" var="car" value="#{etlViewController.etlMetaInformation}" rows="10"
                          paginator="true"
                          paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown}"
                          rowsPerPageTemplate="5,10,15">
@@ -36,6 +37,9 @@
  
         <p:column headerText="TransferredFacts">
             <h:outputText value="#{car.transferredFacts}" />
+        </p:column>
+         <p:column headerText="Duration">
+            <h:outputText value="#{car.duration}" />
         </p:column>
  
         <p:column headerText="ChangedDimensions">

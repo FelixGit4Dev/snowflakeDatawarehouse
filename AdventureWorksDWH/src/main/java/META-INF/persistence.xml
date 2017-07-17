@@ -5,6 +5,7 @@
           <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
   <jta-data-source>java:jboss/datasources/DwhTarget</jta-data-source>
               <class>adventureworks.entity.EtlMetaInformation</class>
+              <class>adventureworks.entity.StagingTable</class>
               <class>adventureworks.entity.dimensions.customer.AgeGroup</class>
               <class>adventureworks.entity.dimensions.customer.Customer</class>
               <class>adventureworks.entity.dimensions.customer.Gender</class>
@@ -17,7 +18,11 @@
               <class>adventureworks.entity.dimensions.place.State</class>
               <class>adventureworks.entity.dimensions.place.Territory</class>
               <class>adventureworks.entity.dimensions.product.Category</class>
+              <class>adventureworks.entity.dimensions.product.MakeFlag</class>
               <class>adventureworks.entity.dimensions.product.Product</class>
+              <class>adventureworks.entity.dimensions.product.ProductClasse</class>
+              <class>adventureworks.entity.dimensions.product.ProductLine</class>
+              <class>adventureworks.entity.dimensions.product.ProductStyle</class>
               <class>adventureworks.entity.dimensions.product.Subcategory</class>
               <class>adventureworks.entity.dimensions.sales.SalesChannel</class>
               <class>adventureworks.entity.dimensions.sales.SalesPerson</class>
@@ -28,7 +33,7 @@
               <class>adventureworks.entity.dimensions.time.Month</class>
               <class>adventureworks.entity.dimensions.time.Week</class>
               <class>adventureworks.entity.dimensions.time.Year</class>
-              <class>adventureworks.entity.facts.SalesFact</class>
+              <class>adventureworks.entity.facts.SalesFact</class>             
               <class>adventureworks.entity.maps.Category_MAP</class>
             <class>adventureworks.entity.maps.City_MAP</class>
             <class>adventureworks.entity.maps.Country_MAP</class>
@@ -37,6 +42,7 @@
             <class>adventureworks.entity.maps.SalesChannel_MAP</class>
             <class>adventureworks.entity.maps.SalesPerson_MAP</class>
             <class>adventureworks.entity.maps.SalesReason_MAP</class>
+            <class>adventureworks.entity.maps.ShippingMethod_MAP</class>
             <class>adventureworks.entity.maps.State_MAP</class>
             <class>adventureworks.entity.maps.Store_MAP</class>
             <class>adventureworks.entity.maps.Subcategory_MAP</class>
@@ -44,7 +50,7 @@
         <properties>
  <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
 <!--             <property name="hibernate.show_sql" value="true" /> -->
-<property name="hibernate.hbm2ddl.auto" value="create-drop" />
+<property name="hibernate.hbm2ddl.auto" value="create" />
         </properties>      
     </persistence-unit>
  
@@ -54,7 +60,7 @@
     <exclude-unlisted-classes>true</exclude-unlisted-classes>
           <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
             <jta-data-source>java:jboss/datasources/DwhSource</jta-data-source>
-
+  <class>adventureworks.entity.StagingTable</class>
             <class>adventureworks.entitySource.Address</class>
             <class>adventureworks.entitySource.Contact</class>
             <class>adventureworks.entitySource.Countryregion</class>

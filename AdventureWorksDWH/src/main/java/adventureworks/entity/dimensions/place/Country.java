@@ -20,23 +20,23 @@ public class Country implements Serializable{
 	 */
 	private static final long serialVersionUID = 1L;
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
 	@Column(name="COUNTRY_ID", nullable=false, unique=true)
-	private long countryId;
+	private String countryCode;
 	@Column(name="NAME", nullable=false)
 	private String name;
-	
+	@Column(nullable=false)
+	private Timestamp modfiedDate;
 	// slowly changing dimensions
 		@Column(name = "FROM_DATE", nullable = true)
 		private Timestamp fromDate;
 		@Column(name = "TO_DATE", nullable = true)
 		private Timestamp toDate;
-	public long getCountryId() {
-		return countryId;
+	public String getCountryCode() {
+		return countryCode;
 	}
 
-	public void setCountryId(long cityId) {
-		this.countryId = cityId;
+	public void setCountryCode(String cityId) {
+		this.countryCode = cityId;
 	}
 
 	public String getName() {
@@ -45,6 +45,28 @@ public class Country implements Serializable{
 
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public Timestamp getModfiedDate() {
+		return modfiedDate;
+	}
+
+	public void setModfiedDate(Timestamp modfiedDate) {
+		this.modfiedDate = modfiedDate;
+	}
+
+	public Country(String countryCode,String name, Timestamp modfiedDate, Timestamp fromDate, Timestamp toDate) {
+		super();
+		this.countryCode=countryCode;
+		this.name = name;
+		this.modfiedDate = modfiedDate;
+		this.fromDate = fromDate;
+		this.toDate = toDate;
+	}
+
+	public Country() {
+		super();
+		// TODO Auto-generated constructor stub
 	}
 
 }

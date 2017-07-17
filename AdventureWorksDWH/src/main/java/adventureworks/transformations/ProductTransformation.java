@@ -41,7 +41,7 @@ private DwhTargetAcess targetDao;
 
 	public void initDimension() {
 		Timestamp startFrom = new Timestamp(0);
-		initProductlineClassStyle();
+		initProductLineClassStyle();
 		   int offset = 0;
 
 	        List<Productcategory> salesHeaders;
@@ -62,41 +62,63 @@ private DwhTargetAcess targetDao;
 	            }
 	            offset += salesHeaders.size();
 	        }
+	        createUndefined();
 		
 	}
 	
 	
-	private void initProductlineClassStyle() {
+	private void initProductLineClassStyle() {
+	    Timestamp now =new Timestamp(System.currentTimeMillis());
 		List<Object> topersist = new ArrayList<Object>();
 		ProductLine line = new ProductLine("R", "Cityrad");
+		 line.setModfiedDate(now);
 	topersist.add(line);
 		 line = new ProductLine("M", "Mountainbike");
+		 line.setModfiedDate(now);
 		 topersist.add(line);
 		
 		 line = new ProductLine("T", "Tourenrad");
+		 line.setModfiedDate(now);
 		 topersist.add(line);
 		 line = new ProductLine("S", "Standardrad");
+		 line.setModfiedDate(now);
 		 topersist.add(line);
-			
+		 line = new ProductLine("UD", "UNDEFINED");
+		 line.setModfiedDate(now);
+		 topersist.add(line);
+		 
 		ProductClasse classe = new ProductClasse("H", "Hoch");	
+		classe.setModfiedDate(now);
 		topersist.add(classe);
 		classe= new ProductClasse("M", "Mittel");
+		classe.setModfiedDate(now);
 		topersist.add(classe);
 		classe = new ProductClasse("L","Niedrig");
+		classe.setModfiedDate(now);
+		topersist.add(classe);
+		classe= new ProductClasse("UD", "UNDEFINED");
+		classe.setModfiedDate(now);
 		topersist.add(classe);
 		
 		ProductStyle style = new ProductStyle("W", "Damenrad");
+		style.setModfiedDate(now);
 		topersist.add(style);
 		style = new ProductStyle("M", "Herrenrad");
+		style.setModfiedDate(now);
 		topersist.add(style);
 		style = new ProductStyle("U", "Universalrad");
+		style.setModfiedDate(now);
 		topersist.add(style);
-		
+		style = new ProductStyle("UD", "UNDEFIND");
+		style.setModfiedDate(now);
+		topersist.add(style);
 		
 		
 		MakeFlag flag = new MakeFlag("M", "SelfMade");
+		flag.setModfiedDate(now);
 		topersist.add(flag);
 		flag = new MakeFlag("B", "Bought");
+		flag.setModfiedDate(now);
 		topersist.add(flag);
 		targetDao.persistListOfEntities(topersist);
 	}
@@ -128,6 +150,7 @@ private DwhTargetAcess targetDao;
 	}
 	
 	public void createProduct(long id){
+	
 		int offset = 0;
 
         List<adventureworks.entitySource.Product> salesHeaders;
@@ -141,11 +164,11 @@ private DwhTargetAcess targetDao;
           product.setStyle(salesHeader.getStyle());
           product.setProductLine(salesHeader.getProductLine());
           product.setName(salesHeader.getName());
-          product.setMakeFlag(salesHeader.getMakeFlag());
+          product.setMakeFlag(((salesHeader.getMakeFlag()==1)?"M":"B"));
           product.setKlasse(salesHeader.getClass_());
-          Timestamp now =new Timestamp(System.currentTimeMillis());
+        Timestamp now =new Timestamp(System.currentTimeMillis());
           product.setModfiedDate(now);
-          targetDao.persistProduct(product);
+          targetDao.persistObject(product);
           Product_MAP map= new Product_MAP(((long)salesHeader.getProductID()),product.getProductId(),now,new Timestamp(0), null);
           map.setModifiedDate(now);
           targetDao.persistObject(map);
@@ -157,6 +180,39 @@ private DwhTargetAcess targetDao;
 	} 
 	
 	
+	
+	public void createUndefined(){
+		Timestamp now =new Timestamp(System.currentTimeMillis());
+		Category category = new Category(new Timestamp(0), null, "Other");	
+		 category.setModfiedDate(now);
+		 targetDao.persistObject(category);
+		 Subcategory subcategory= new Subcategory();
+		 subcategory.setName("Other");
+		 subcategory.setModfiedDate(now);
+		 subcategory.setCategoryId(category.getCategoryId());
+		 targetDao.persistObject(subcategory);
+		 int offset = 0;
+		    List<adventureworks.entitySource.Product> salesHeaders;
+		  while ((salesHeaders = sourceDao.getProductsBySubcategoryId(null,offset, Constants.RESULTSETSIZE)).size() > 0)
+	        {
+		 for(adventureworks.entitySource.Product p: salesHeaders){
+			 Product product = new Product();
+	          product.setSubcategoryId(subcategory.getSubcategoryId());
+	          product.setStyle(p.getStyle());
+	          product.setProductLine(p.getProductLine());
+	          product.setName(p.getName());
+	          product.setMakeFlag(((p.getMakeFlag()==1)?"M":"B"));
+	          product.setKlasse(p.getClass_());
+	      now =new Timestamp(System.currentTimeMillis());
+	          product.setModfiedDate(now);	
+	          targetDao.persistObject(product);
+	          Product_MAP map= new Product_MAP(((long)p.getProductID()),product.getProductId(),now,new Timestamp(0), null);
+	          map.setModifiedDate(now);
+	          targetDao.persistObject(map);
+		 }
+		  offset += salesHeaders.size();
+	        }
+	}
 
 	public void update() {
 		

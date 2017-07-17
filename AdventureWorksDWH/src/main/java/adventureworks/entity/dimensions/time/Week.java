@@ -55,6 +55,6 @@ public Timestamp getModfiedDate() {
 public void setModfiedDate(Timestamp modfiedDate) {
 	this.modfiedDate = modfiedDate;
 }
-	
+
 	
 }

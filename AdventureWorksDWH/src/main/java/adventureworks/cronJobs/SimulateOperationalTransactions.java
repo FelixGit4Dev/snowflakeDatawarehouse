@@ -18,8 +18,8 @@ public class SimulateOperationalTransactions implements Job{
 CustomerTransformation ct;
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
-		System.out.println("Hello World, I am an SimulateOperationalTransactions Job");
-		System.out.println(ct.hashCode());
+//		System.out.println("Hello World, I am an SimulateOperationalTransactions Job");
+//		System.out.println(ct.hashCode());
 		
 		
 		

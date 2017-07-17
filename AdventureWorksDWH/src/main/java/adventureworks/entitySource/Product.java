@@ -52,12 +52,12 @@ public class Product implements Serializable {
 	@Column(length=2)
 	private String productLine;
 
-	private int productModelID;
+	private Integer productModelID;
 
 	@Column(nullable=false, length=25)
 	private String productNumber;
 
-	private int productSubcategoryID;
+	private Integer productSubcategoryID;
 
 	@Column(nullable=false)
 	private short reorderPoint;
@@ -184,11 +184,11 @@ public class Product implements Serializable {
 		this.productLine = productLine;
 	}
 
-	public int getProductModelID() {
+	public Integer getProductModelID() {
 		return this.productModelID;
 	}
 
-	public void setProductModelID(int productModelID) {
+	public void setProductModelID(Integer productModelID) {
 		this.productModelID = productModelID;
 	}
 
@@ -200,11 +200,11 @@ public class Product implements Serializable {
 		this.productNumber = productNumber;
 	}
 
-	public int getProductSubcategoryID() {
+	public Integer getProductSubcategoryID() {
 		return this.productSubcategoryID;
 	}
 
-	public void setProductSubcategoryID(int productSubcategoryID) {
+	public void setProductSubcategoryID(Integer productSubcategoryID) {
 		this.productSubcategoryID = productSubcategoryID;
 	}
 

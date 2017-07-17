@@ -19,7 +19,7 @@ public class Month {
 private long monthId;	
 	@Column(nullable=false)
 	private Timestamp modfiedDate;	
-	
+
 private long yearId;	
 private String month;
 
@@ -56,5 +56,6 @@ public Timestamp getModfiedDate() {
 public void setModfiedDate(Timestamp modfiedDate) {
 	this.modfiedDate = modfiedDate;
 }
+
 
 }

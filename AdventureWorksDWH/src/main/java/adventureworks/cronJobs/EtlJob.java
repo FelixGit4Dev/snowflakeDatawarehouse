@@ -1,7 +1,9 @@
 package adventureworks.cronJobs;
 
 import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -13,6 +15,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 
 import adventureworks.DAO.DwhTargetAcess;
+import adventureworks.Util.TimeUtil;
 import adventureworks.entity.EtlMetaInformation;
 import adventureworks.transformations.CustomerTransformation;
 import adventureworks.transformations.PlaceTransformation;
@@ -50,7 +53,9 @@ private	TimeDimensionTransformations timeDimensionTransformations;
 	log.info("an  ETL-Job is already rnning, no new job will be started");	
 	}
 	else{
+		SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
 	isRunning=true;	
+	Date start= new Date();
 		log.info("Beginning ETL Job: " + new Date());
 	EtlMetaInformation meta = new EtlMetaInformation();
 	Timestamp runTime= new  Timestamp(System.currentTimeMillis());
@@ -61,6 +66,9 @@ private	TimeDimensionTransformations timeDimensionTransformations;
 	log.info("Started transferring OperationalData to Fact-Table: " + new Date());
 	//this.transformOperationalData();
 	log.info("Finished transferring OperationalData to Fact-Table: " + new Date());
+	Date end = new  Date();
+	long duration= end.getTime()-start.getTime();
+	meta.setDuration(TimeUtil.formatDuration(duration));
 	this.targetDao.persistObject(meta);
 		
 	log.info("Finished ETL Job: " + new Date());
@@ -71,10 +79,13 @@ private	TimeDimensionTransformations timeDimensionTransformations;
 	}
 	
 	
+	
+	
+	
 	public void synchronizeDimensions(){
 
 	if(targetDao.initialImport()){
-log.info("Started initializing Time Dimension: " + new Date());
+log.info("	Started initializing Time Dimension: " + new Date());
 	timeDimensionTransformations.initDimension();
 	log.info("	Finished initializing Time Dimension: " + new Date());
 	log.info("	Started initializing Product Dimension: " + new Date());

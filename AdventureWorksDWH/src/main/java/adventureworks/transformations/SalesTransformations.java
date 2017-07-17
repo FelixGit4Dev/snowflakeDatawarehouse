@@ -55,7 +55,6 @@ private DwhTargetAcess targetDao;
 	this.targetDao.persistObject(channel );
 	channel= new SalesChannel(initialFrom,null,"DIREKT");
 	channel.setModfiedDate(now);
-	this.targetDao.persistObject(new SalesChannel(null,null,"DIREKT"));	
 	//SalesPerson Dimension
 	 int offset = 0;
 

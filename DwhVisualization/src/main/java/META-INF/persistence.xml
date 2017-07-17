@@ -1,9 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <persistence xmlns="http://java.sun.com/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://java.sun.com/xml/ns/persistence persistence_1_0.xsd" version="1.0">
      <persistence-unit name="dwhTarget" transaction-type="JTA">
+     
+         <exclude-unlisted-classes>true</exclude-unlisted-classes>
           <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
             <jta-data-source>java:jboss/datasources/DwhTarget</jta-data-source>
-
+	<class>visualization.entity.entityDwh.Category</class>
+     	<class>visualization.entity.entityDwh.City</class>
+     	<class>visualization.entity.entityDwh.Country</class>
+     	<class>visualization.entity.entityDwh.Product</class>
+     	<class>visualization.entity.entityDwh.SalesPerson</class>
+     	<class>visualization.entity.entityDwh.SalesReason</class>
+     	<class>visualization.entity.entityDwh.SalesReasonType</class>
+     	<class>visualization.entity.entityDwh.State</class>
+     	<class>visualization.entity.entityDwh.Subcategory</class>
+     	<class>visualization.entity.entityDwh.Territory</class>
 
 
         <properties>

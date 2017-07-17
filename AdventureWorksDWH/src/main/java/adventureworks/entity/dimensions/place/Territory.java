@@ -21,7 +21,8 @@ public class Territory {
 		private Timestamp fromDate;
 		@Column(name = "TO_DATE", nullable = true)
 		private Timestamp toDate;
-		
+		@Column(nullable=false)
+		private Timestamp modfiedDate;
 		@Column(name="TERRITORY_NAME", nullable=false, updatable=true)
 		private String name;
 		
@@ -79,6 +80,14 @@ public class Territory {
 			this.toDate = toDate;
 			this.name = name;
 			this.group = group;
+		}
+
+		public Timestamp getModfiedDate() {
+			return modfiedDate;
+		}
+
+		public void setModfiedDate(Timestamp modfiedDate) {
+			this.modfiedDate = modfiedDate;
 		}
 		
 		

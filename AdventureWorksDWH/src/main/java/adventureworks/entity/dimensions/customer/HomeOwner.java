@@ -14,45 +14,33 @@ import javax.persistence.Table;
 public class HomeOwner {
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-private long homeOwnerId;
+private String homeOwnerCode;
 	@Column(nullable=false)
-	private Timestamp modfiedDate;
-private String name;
+	private Timestamp modifiedDate;
 
-public long getHomeOwnerId() {
-	return homeOwnerId;
-}
 
-public void setHomeOwnerId(long homeOwnerId) {
-	this.homeOwnerId = homeOwnerId;
-}
 
-public String getName() {
-	return name;
-}
 
-public void setName(String name) {
-	this.name = name;
-}
+
 
 public HomeOwner() {
 	super();
 	// TODO Auto-generated constructor stub
 }
 
-public HomeOwner(long homeOwnerId, String name) {
+public HomeOwner(String homeOwnerCode,  Timestamp modifiedDate) {
 	super();
-	this.homeOwnerId = homeOwnerId;
-	this.name = name;
+	this.homeOwnerCode = homeOwnerCode;
+
+	this.modifiedDate=modifiedDate;
 }
 
 public Timestamp getModfiedDate() {
-	return modfiedDate;
+	return modifiedDate;
 }
 
 public void setModfiedDate(Timestamp modfiedDate) {
-	this.modfiedDate = modfiedDate;
+	this.modifiedDate = modfiedDate;
 }
 
 

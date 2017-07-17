@@ -8,6 +8,7 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.Table;
 
 @Entity
@@ -24,9 +25,14 @@ private Timestamp etlJobRun_Date;
 @Column
 private long transferredFacts;
 
+@Lob
  @Column
 private String changedDimensions;
 
+ 
+ @Column
+ private String duration;
+ 
 @Column
 private Blob log;
 
@@ -68,6 +74,14 @@ public Blob getLog() {
 
 public void setLog(Blob log) {
 	this.log = log;
+}
+
+public String getDuration() {
+	return duration;
+}
+
+public void setDuration(String duration) {
+	this.duration = duration;
 }
 
 public EtlMetaInformation() {

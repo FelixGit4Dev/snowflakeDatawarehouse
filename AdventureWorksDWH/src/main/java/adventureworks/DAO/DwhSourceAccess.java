@@ -2,6 +2,7 @@ package adventureworks.DAO;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.Collections;
 import java.util.List;
 
 
@@ -11,6 +12,7 @@ import javax.inject.Named;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -19,7 +21,9 @@ import javax.persistence.criteria.Root;
 
 import org.apache.log4j.Logger;
 
+import adventureworks.entity.StagingTable;
 import adventureworks.entitySource.Contact;
+import adventureworks.entitySource.Countryregion;
 import adventureworks.entitySource.Customer;
 import adventureworks.entitySource.Individual;
 import adventureworks.entitySource.Product;
@@ -31,6 +35,7 @@ import adventureworks.entitySource.Salesperson;
 import adventureworks.entitySource.Salesreason;
 import adventureworks.entitySource.Salesterritory;
 import adventureworks.entitySource.Shipmethod;
+import adventureworks.entitySource.Stateprovince;
 import adventureworks.entitySource.Store;
 
 @Named
@@ -123,12 +128,16 @@ public List<Productcategory> getAllCategories(int offset, int max)
 
 
 
-public List<Product> getProductsBySubcategoryId(long id, int offset, int max)
+public List<Product> getProductsBySubcategoryId(Long id, int offset, int max)
     {
     	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
     	CriteriaQuery<Product> cq = cb.createQuery(Product.class);
     	Root<Product> from = cq.from(Product.class);
-    	cq.select(from).where(cb.equal(from.get("productSubcategoryID"), id)).orderBy(cb.asc(from.get("modifiedDate")));
+    	if(id!=null){
+    	cq.select(from).where(cb.equal(from.get("productSubcategoryID"), id)).orderBy(cb.asc(from.get("modifiedDate")));}
+else{
+	cq.select(from).where(cb.isNull(from.get("productSubcategoryID"))).orderBy(cb.asc(from.get("modifiedDate")));
+}
     	TypedQuery<Product> q = entityManager.createQuery(cq);
     	List<Product> item = q.setFirstResult(offset).setMaxResults(max).getResultList();
     	return item;
@@ -236,6 +245,9 @@ return entityManager.createNativeQuery("SELECT DISTINCT ReasonType FROM salesrea
 
 }
    
+public List<Object[]> getDistinctCities(){
+	return entityManager.createNativeQuery("SELECT Distinct address.City,address.StateProvinceID FROM address order by address.StateProvinceID;").getResultList();
+}
 
 
 public List<Salesreason> getallSalesReasonsByReasonType( String salesreasonType, int offset, int max)
@@ -283,7 +295,7 @@ public Contact getContactForCustomerId(int id){
 	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 	CriteriaQuery<Contact> cq = cb.createQuery(Contact.class);
 	Root<Contact> from = cq.from(Contact.class);
-	cq.select(from).where(cb.equal(from.get("customerID"),id));
+	cq.select(from).where(cb.equal(from.get("contactID"),id));
 	TypedQuery<Contact> q = entityManager.createQuery(cq);
 	Contact item = q.getSingleResult();
 	return item;	
@@ -291,12 +303,57 @@ public Contact getContactForCustomerId(int id){
 
 
 
+public List<StagingTable> getJoinedSalesOrderAndHeaders(int offset, int maxResults){ //salesorderheader.SalesOrderID as salesorderId,
+Query q= entityManager.createNativeQuery("  Select sdc.SalesOrderDetailID as detailId,  salesorderheader.ShipMethodID as shipMethod,salesorderheader.OrderDate as orderDate,salesorderheader.ShipDate as shipDate, salesorderheader.OnlineOrderFlag as online,"
++" salesorderheader.CustomerID as customer,COALESCE(salesorderheader.SalesPersonID, '') as salesperson,sdc.OrderQty as quantity, sdc.ProductID as product ,sdc.SpecialOfferID as specialOffer,sdc.UnitPrice as unitPrice,COALESCE(sor.SalesReasonID,'') as salesReason, ad.City as billTo ,ad.StateProvinceID as billToState,adc.City as shipTo, adc.StateProvinceID as shipToState From salesorderdetail as sdc"
++" inner Join salesorderheader on salesorderheader.SalesOrderID=sdc.SalesOrderID"
++" inner join address ad on salesorderheader.BillToAddressID=ad.AddressID"
++" inner join address adc on salesorderheader.ShipToAddressID=adc.AddressID"
++" left Join salesorderheadersalesreason sor on salesorderheader.SalesOrderID=sor.SalesOrderID","StagingValueMapping");	//, "StagingValueMapping"
+List<StagingTable> results = q.setFirstResult(offset).setMaxResults(maxResults).getResultList();
+return results;
+}
 
 
+
+public List<Object[]> getJoinedCustomerAndStore(int offset, int maxResults){ //salesorderheader.SalesOrderID as salesorderId,
+Query q= entityManager.createNativeQuery(" select customer.CustomerID, store.Name from customer" 
++" inner join store  on customer.CustomerID=store.CustomerID");	//, "StagingValueMapping"
+List<Object[]> results = q.setFirstResult(offset).setMaxResults(maxResults).getResultList();
+return results;
+}
+
+public List<Object[]> getJoinedCustomerAndIndividual(int offset, int maxResults){ //salesorderheader.SalesOrderID as salesorderId,
+Query q= entityManager.createNativeQuery("select customer.CustomerID, individual.Demographics, contact.FirstName , contact.LastName from customer" 
++" inner join individual  on customer.CustomerID=individual.CustomerID"
++" inner join contact on contact.ContactID =individual.ContactID ");	//, "StagingValueMapping"
+List<Object[]> results = q.setFirstResult(offset).setMaxResults(maxResults).getResultList();
+return results;
+}
 
 
 private static void main (String[] args){
 	
+}
+
+public List<Countryregion> getAllCountries() {
+	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	CriteriaQuery<Countryregion> cq = cb.createQuery(Countryregion.class);
+	Root<Countryregion> from = cq.from(Countryregion.class);
+	cq.select(from).orderBy(cb.asc(from.get("modifiedDate")));
+	TypedQuery<Countryregion> q = entityManager.createQuery(cq);
+	List<Countryregion> item = q.getResultList();
+	return item;
+}
+
+public List<Stateprovince> getStatesByTerritoryId(long id) {
+	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	CriteriaQuery<Stateprovince> cq = cb.createQuery(Stateprovince.class);
+	Root<Stateprovince> from = cq.from(Stateprovince.class);
+	cq.select(from).where(cb.equal(from.get("territoryID"),id)).orderBy(cb.asc(from.get("modifiedDate")));
+	TypedQuery<Stateprovince> q = entityManager.createQuery(cq);
+	List<Stateprovince> item = q.getResultList();
+	return item;
 }
 
 

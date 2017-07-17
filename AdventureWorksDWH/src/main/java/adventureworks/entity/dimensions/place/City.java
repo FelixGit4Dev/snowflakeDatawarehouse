@@ -22,9 +22,13 @@ public class City implements Serializable {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "CITY_ID", nullable = false, unique = true)
 	private long cityId;
+	
+	private long stateId;
+	
 	@Column(name = "NAME", nullable = false)
 	private String name;
-
+	@Column(nullable=false)
+	private Timestamp modfiedDate;
 	// slowly changing dimensions
 		@Column(name = "FROM_DATE", nullable = true)
 		private Timestamp fromDate;
@@ -59,6 +63,36 @@ public class City implements Serializable {
 	}
 
 	public void setToDate(Timestamp toDate) {
+		this.toDate = toDate;
+	}
+
+	public Timestamp getModfiedDate() {
+		return modfiedDate;
+	}
+
+	public void setModfiedDate(Timestamp modfiedDate) {
+		this.modfiedDate = modfiedDate;
+	}
+
+	public long getStateId() {
+		return stateId;
+	}
+
+	public void setStateId(long stateId) {
+		this.stateId = stateId;
+	}
+
+	public City() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	public City(long stateId, String name, Timestamp modfiedDate, Timestamp fromDate, Timestamp toDate) {
+		super();
+		this.stateId = stateId;
+		this.name = name;
+		this.modfiedDate = modfiedDate;
+		this.fromDate = fromDate;
 		this.toDate = toDate;
 	}
 

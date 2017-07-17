@@ -1,13 +1,14 @@
 package adventureworks.DAO;
 
 import java.io.Serializable;
-
+import java.math.BigInteger;
 import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.zip.DataFormatException;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -17,6 +18,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceUnit;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -25,6 +27,7 @@ import javax.persistence.criteria.Root;
 
 import adventureworks.entity.EtlMetaInformation;
 import adventureworks.entity.IdHousekeeping;
+import adventureworks.entity.StagingTable;
 import adventureworks.entity.dimensions.customer.Customer;
 import adventureworks.entity.dimensions.customer.Store;
 import adventureworks.entity.dimensions.product.Category;
@@ -40,10 +43,12 @@ import adventureworks.entity.dimensions.time.Week;
 import adventureworks.entity.dimensions.time.Year;
 import adventureworks.entity.facts.SalesFact;
 import adventureworks.entity.maps.Category_MAP;
+import adventureworks.entity.maps.City_MAP;
 import adventureworks.entity.maps.Customer_MAP;
 import adventureworks.entity.maps.Product_MAP;
 import adventureworks.entity.maps.SalesPerson_MAP;
 import adventureworks.entity.maps.ShippingMethod_MAP;
+import adventureworks.entity.maps.State_MAP;
 import adventureworks.entitySource.Individual;
 import adventureworks.entitySource.Salesorderheader;
 import adventureworks.interceptor.Transactional;
@@ -213,6 +218,14 @@ entityManager.flush();
 }
 
 @Transactional
+public void persistListOfStagingtables(List<StagingTable> entities){
+for(Object entity: entities){
+	entityManager.persist(entity);}
+entityManager.flush();
+}
+
+
+@Transactional
 public List<IdHousekeeping> getAllIdHousekeeping(){
 	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 	CriteriaQuery<IdHousekeeping> cq = cb.createQuery(IdHousekeeping.class);
@@ -331,5 +344,109 @@ public Object mergeObject(Object o){
 	return  entityManager.merge(o);
 
 	}
+
+@Transactional
+public void clearStagingTable(){
+	Query q = entityManager.createNativeQuery("DELETE FROM staging_table");	
+	q.executeUpdate();
+}
+
+
+public List<Object> getFinishedSalesFacts(int offset, int maxResults){
+//Query q= entityManager.createNativeQuery("", "StagingValueMapping");	
+//List<Object> results = q.setFirstResult(offset).setMaxResults(maxResults).getResultList();
+//return results;
+	return null;
+}
+
+
+public State_MAP getStateMapById(long id){
+	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	CriteriaQuery<State_MAP> cq = cb.createQuery(State_MAP.class);
+	Root<State_MAP> from = cq.from(State_MAP.class);
+	cq.select(from).where(cb.equal(from.get("sourceKey"),id));
+	TypedQuery<State_MAP> q = entityManager.createQuery(cq);
+	State_MAP item = q.getSingleResult();
+	return item;		
+}
+
+
+
+public List<Object[]> getCustomerIdForSalesFact(int offset, int max){
+	Query q = entityManager.createNativeQuery("select s.salesOrderId, "
++" (select DWH_KEY from customer_map where SOURCE_KEY=s.customerId) as cs"
++" from stagingtable as s"
++" order by s.salesOrderId");	
+	return q.setFirstResult(offset).setMaxResults(max).getResultList();
+	
+}
+
+
+public List<Object[]> getProductIdAndSalesPersonIdForSalesFact(int offset, int max){
+	Query q = entityManager.createNativeQuery("select st.salesOrderId, pm.DWH_KEY as product, sp.DWH_KEY as salesperson from stagingtable as st"
++" left join salesperson_map as sp on st.salesPersonId=sp.SOURCE_KEY"
++" inner join product_map as pm on pm.SOURCE_KEY= st.productId"
++" inner join product as p on p.productId=pm.DWH_KEY"
++" order by st.salesOrderId");	
+	return q.setFirstResult(offset).setMaxResults(max).getResultList();
+	
+}
+
+
+public List<Object[]> getBillToIdForSalesFact(int offset, int max){
+	Query q = entityManager.createNativeQuery("select st.salesOrderId, c.CITY_ID as orderTo from stagingtable as st"
+			+" inner join state_map as sm on sm.SOURCE_KEY=st.billToState"
+			+" inner join city as c on c.stateId= sm.DWH_KEY"
+			+" where st.billTo=c.NAME"
+			+" order by st.salesOrderId");	
+	return q.setFirstResult(offset).setMaxResults(max).getResultList();
+	
+}
+
+public List<Object[]> getShipToIdForSalesFact(int offset, int max){
+	Query q = entityManager.createNativeQuery("select st.salesOrderId, c.CITY_ID as shipTo from stagingtable as st"
++" inner join state_map as sm on sm.SOURCE_KEY=st.shipToState"
++" inner join city as c on c.stateId= sm.DWH_KEY"
++" where st.shipTo=c.NAME"
++" order by st.salesOrderId");	
+	return q.setFirstResult(offset).setMaxResults(max).getResultList();
+	
+}
+
+public List<Object[]> getOrderDateIdForSalesFact(int offset, int max){
+	Query q = entityManager.createNativeQuery("SELECT st.salesOrderId," 
++" (select dayId from day where st.orderDateId=timeinMilis) as od"
++" FROM stagingtable as st"
++" order by st.salesOrderId");	
+	return q.setFirstResult(offset).setMaxResults(max).getResultList();
+	
+}
+
+public List<Object[]> getShipDateIdForSalesFact(int offset, int max){
+	Query q = entityManager.createNativeQuery("SELECT st.salesOrderId," 
++" (select dayId from day where st.shipDateId=timeinMilis) as od"
++" FROM stagingtable as st"
++" order by st.salesOrderId");	
+	return q.setFirstResult(offset).setMaxResults(max).getResultList();
+	
+}
+
+public List<Object[]> getShippingMethodIdForSalesFact(int offset, int max){
+	Query q = entityManager.createNativeQuery("SELECT st.salesOrderId, spm.DWH_KEY as shippingMethod FROM stagingtable as st"
++" inner join shippingmethod_map as spm on  st.shippingMethodId=spm.SOURCE_KEY"
++" order by st.salesOrderId");	
+	return q.setFirstResult(offset).setMaxResults(max).getResultList();
+	
+}
+
+
+@Transactional
+public void persistMapOfEntities(Map<BigInteger, SalesFact> map){
+for(BigInteger l : map.keySet()){
+entityManager.merge(map.get(l));
+
+}
+entityManager.flush();
+}
 
 }

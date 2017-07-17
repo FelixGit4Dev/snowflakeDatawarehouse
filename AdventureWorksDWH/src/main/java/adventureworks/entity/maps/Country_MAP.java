@@ -26,9 +26,9 @@ public class Country_MAP implements Serializable{
 	private long mapId;	
 
 	@Column(name="SOURCE_KEY" , nullable=false)
-	private long sourceKey;
+	private String sourceKey;
 	@Column(name="DWH_KEY" , nullable=false)
-	private long dwhKey;
+	private String dwhKey;
 
 	@Column(name="MODIFIED_DATE", nullable=false)
 	private Timestamp modifiedDate;
@@ -41,19 +41,19 @@ public class Country_MAP implements Serializable{
 
 
 
-	public long getSourceKey() {
+	public String getSourceKey() {
 		return sourceKey;
 	}
 
-	public void setSourceKey(long sourceKey) {
+	public void setSourceKey(String sourceKey) {
 		this.sourceKey = sourceKey;
 	}
 
-	public long getDwhKey() {
+	public String getDwhKey() {
 		return dwhKey;
 	}
 
-	public void setDwhKey(long dwhKey) {
+	public void setDwhKey(String dwhKey) {
 		this.dwhKey = dwhKey;
 	}
 
@@ -85,4 +85,20 @@ public class Country_MAP implements Serializable{
 		return mapId;
 	}
 
+	public Country_MAP(String sourceKey, String dwhKey, Timestamp modifiedDate, Timestamp from, Time to) {
+		super();
+		this.sourceKey = sourceKey;
+		this.dwhKey = dwhKey;
+		this.modifiedDate = modifiedDate;
+		this.from = from;
+		this.to = to;
+	}
+
+	public Country_MAP() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+	
+	
 }

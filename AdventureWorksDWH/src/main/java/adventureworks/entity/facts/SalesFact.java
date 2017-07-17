@@ -1,23 +1,52 @@
 package adventureworks.entity.facts;
 
 import java.io.Serializable;
-import java.sql.Timestamp;
 
-import javax.annotation.Generated;
+import javax.persistence.ColumnResult;
+import javax.persistence.ConstructorResult;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
 
 @Entity
 @Table(name="SALES_FACT")
+//@SqlResultSetMapping(name="SalesFactMapping",
+//classes = {
+// @ConstructorResult(targetClass = SalesFact.class,
+//   columns = {@ColumnResult(name="shippingMethodId"),
+//		   @ColumnResult(name="billTo"),
+//		   @ColumnResult(name="StateProvinceId"),
+//		   @ColumnResult(name="salesReasonId"),
+//		   @ColumnResult(name="productId"),
+//		   @ColumnResult(name="orderDateId"),
+//		   @ColumnResult(name="dueDateId"),
+//		   @ColumnResult(name="shipdateId"),
+//		   @ColumnResult(name="customerId"),
+//		   @ColumnResult(name="salesPersonId"),
+//		   @ColumnResult(name="quantity"),
+//		   @ColumnResult(name="unitPrice"),
+//		   @ColumnResult(name="taxAmt"),
+//		   @ColumnResult(name="discount"),
+//		   @ColumnResult(name="total"),
+//		   @ColumnResult(name="productStandartCost"),
+//		   @ColumnResult(name="billTo"),
+//		   @ColumnResult(name="shipTo"),
+//   
+// }
+// )}
+//)
 public class SalesFact implements Serializable{
 
 	
 /**
 	 * 
 	 */
+	
+	
 	private static final long serialVersionUID = 1L;
 	@Id
 	@GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -32,17 +61,17 @@ private	long salesReasonId;
 
 private	long productId;
 
-private long territoryId;
 
 private long orderDateId;
-
-private long dueDateId;
 
 private long shipdateId;
 
 private long customerId;
 
 private long salesPersonId;
+
+private long billTo;
+private long shipTo;
 
 
 //Kennzahlen
@@ -54,22 +83,47 @@ private double total;
 private double productStandartCost;
 
 
+
+
+
+
+public SalesFact(long shippingMethodId, long billToStateProvinceId, long salesReasonId, long productId,
+		 long orderDateId, long dueDateId, long shipdateId, long customerId, long salesPersonId,
+		int quantity, double unitPrice, double taxAmt, double discount, double total, double productStandartCost, long billTo, long shipTo) {
+	super();
+	this.shippingMethodId = shippingMethodId;
+	this.billToStateProvinceId = billToStateProvinceId;
+	this.salesReasonId = salesReasonId;
+	this.productId = productId;
+	this.orderDateId = orderDateId;
+	this.shipdateId = shipdateId;
+	this.customerId = customerId;
+	this.salesPersonId = salesPersonId;
+	this.quantity = quantity;
+	this.unitPrice = unitPrice;
+	this.taxAmt = taxAmt;
+	this.discount = discount;
+	this.total = total;
+	this.productStandartCost = productStandartCost;
+	this.setBillTo(billTo);
+	this.setShipTo(shipTo);
+}
+
+
+
+
+
+
 public SalesFact() {
 	super();
 	// TODO Auto-generated constructor stub
 }
-public SalesFact(long shippingMethodId, long billToAdressId, long salesReasonId, long productId, long territoryId, long orderDateId,
-		long dueDateId, long shipdateId) {
-	super();
-	this.shippingMethodId = shippingMethodId;
-	this.billToStateProvinceId = billToAdressId;
-	this.salesReasonId = salesReasonId;
-	this.productId = productId;
-	this.territoryId = territoryId;
-	this.orderDateId=orderDateId;
-	this.dueDateId=dueDateId;
-	this.shipdateId=shipdateId;
-}
+
+
+
+
+
+
 public long getShippingMethodId() {
 	return shippingMethodId;
 }
@@ -94,12 +148,7 @@ public long getProductId() {
 public void setProductId(long productId) {
 	this.productId = productId;
 }
-public long getTerritoryId() {
-	return territoryId;
-}
-public void setTerritoryId(long territoryId) {
-	this.territoryId = territoryId;
-}
+
 public long getSaleFactId() {
 	return saleFactId;
 }
@@ -109,12 +158,7 @@ public long getOrderDateId() {
 public void setOrderDateId(long orderDateId) {
 	this.orderDateId = orderDateId;
 }
-public long getDueDateId() {
-	return dueDateId;
-}
-public void setDueDateId(long dueDateId) {
-	this.dueDateId = dueDateId;
-}
+
 public long getShipdateId() {
 	return shipdateId;
 }
@@ -171,6 +215,42 @@ public double getProductStandartCost() {
 }
 public void setProductStandartCost(double productStandartCost) {
 	this.productStandartCost = productStandartCost;
+}
+
+
+
+
+
+
+public long getBillTo() {
+	return billTo;
+}
+
+
+
+
+
+
+public void setBillTo(long billTo) {
+	this.billTo = billTo;
+}
+
+
+
+
+
+
+public long getShipTo() {
+	return shipTo;
+}
+
+
+
+
+
+
+public void setShipTo(long shipTo) {
+	this.shipTo = shipTo;
 }
 
 }

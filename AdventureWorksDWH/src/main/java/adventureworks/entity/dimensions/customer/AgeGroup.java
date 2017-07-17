@@ -24,6 +24,7 @@ public class AgeGroup {
 	}
 	public void setAgeGroupId(long ageGroupId) {
 		this.ageGroupId = ageGroupId;
+
 	}
 	public String getName() {
 		return name;
@@ -43,6 +44,11 @@ public class AgeGroup {
 		return modfiedDate;
 	}
 	public void setModfiedDate(Timestamp modfiedDate) {
+		this.modfiedDate = modfiedDate;
+	}
+	public AgeGroup(String name, Timestamp modfiedDate) {
+		super();
+		this.name = name;
 		this.modfiedDate = modfiedDate;
 	}
 	

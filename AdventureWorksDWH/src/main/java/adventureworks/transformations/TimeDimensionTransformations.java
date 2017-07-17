@@ -2,6 +2,7 @@ package adventureworks.transformations;
 
 import java.sql.Timestamp;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -54,9 +55,10 @@ for(LocalDate date : totalDates){
 	LocalDate lastDay = date.with(lastDayOfYear()); // 2015-12-31
 	Timestamp now= new Timestamp(System.currentTimeMillis());
 	year.setModfiedDate(now );
+	
 	year= (Year) this.targetDao.persistObject(year);
 	
-	System.out.println(date.format(formatterYear));
+	//System.out.println(date.format(formatterYear));
 	while (!firstDay.isAfter(lastDay)) {
 		 Month m= new Month(year.getYearId(),firstDay.format(formatterMonth) );
 		 now= new Timestamp(System.currentTimeMillis());
@@ -67,7 +69,8 @@ for(LocalDate date : totalDates){
 		  LocalDate firstDayMonth = firstDay.with(firstDayOfMonth()); // 2015-01-01
 			LocalDate lastDayMonth = firstDay.with(lastDayOfMonth()); // 2015-12-31
 		  while (!firstDayMonth.isAfter(lastDayMonth)) {
-			Day d = new  Day(1L, m.getMonthId(), firstDayMonth.format(formatterDay)); 
+			Day d = new  Day(1L, m.getMonthId(), firstDayMonth.format(formatterDay));
+			d.setTimeinMilis(new Timestamp(firstDayMonth.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()));
 			 now= new Timestamp(System.currentTimeMillis());
 			 d.setModfiedDate(now);
 			this.targetDao.persistDay(d);
