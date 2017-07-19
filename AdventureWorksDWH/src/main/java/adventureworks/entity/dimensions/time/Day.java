@@ -7,10 +7,11 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Index;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="DAY")
+@Table(name="DAY",indexes = {@Index(columnList="timeinMilis" , unique=true )})
 public class Day {
 	
 	@Id
@@ -18,6 +19,7 @@ public class Day {
 	private long dayId;
 	private long weekId;
 	private long monthId;
+	
 	private Timestamp timeinMilis;
 	private String day;
 	@Column(nullable=false)

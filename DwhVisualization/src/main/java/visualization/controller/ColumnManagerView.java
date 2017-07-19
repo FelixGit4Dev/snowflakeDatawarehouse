@@ -56,13 +56,11 @@ public class ColumnManagerView implements Serializable {
         map.put("quantity", 0);
         TreeNode manufacturer = new DefaultTreeNode("column", new ColumnModel("Unit Price", "unitPrice"), rootKennzahlen);
         map.put("unitPrice", 0);       
-        TreeNode taxamt = new DefaultTreeNode("column", new ColumnModel("Tax Amt", "taxAmt"), rootKennzahlen);
-        map.put("taxAmt", 0);
         TreeNode discount = new DefaultTreeNode("column", new ColumnModel("Discount", "discount"), rootKennzahlen);
         map.put("discount", 0);
         TreeNode totalCost = new DefaultTreeNode("column", new ColumnModel("Total Cost", "totalCost"), rootKennzahlen);
         map.put("totalCost", 0);
-        TreeNode standartCost = new DefaultTreeNode("column", new ColumnModel("Standart Cost", "standartCost"), rootKennzahlen);
+        TreeNode standartCost = new DefaultTreeNode("column", new ColumnModel("Standart Cost", "productStandartCost"), rootKennzahlen);
         map.put("standartCost", 0);
         TreeNode margin = new DefaultTreeNode("column", new ColumnModel("Margin", "margin"), rootKennzahlen);
         map.put("margin", 0);
@@ -89,8 +87,19 @@ public class ColumnManagerView implements Serializable {
         map.put("salesChannel", 1);
         TreeNode customerRegion = new DefaultTreeNode("column", new ColumnModel("CustomerRegion", "customerRegion"), rootDimensionen);
         map.put("customerRegion", 1);
+        TreeNode productLine = new DefaultTreeNode("column", new ColumnModel("ProductLine", "productLine"), rootDimensionen);
+        map.put("productLine", 1);
+        TreeNode productClass = new DefaultTreeNode("column", new ColumnModel("ProductClass", "productClass"), rootDimensionen);
+        map.put("productClass", 1);
+        TreeNode productStyle = new DefaultTreeNode("column", new ColumnModel("ProductStyle", "productStyle"), rootDimensionen);
+        map.put("productStyle", 1);
+        TreeNode makeFlag = new DefaultTreeNode("column", new ColumnModel("MakeFlag", "makeFlag"), rootDimensionen);
+        map.put("productStyle", 1);
     }
-       
+  
+  
+   
+
     public void createDynamicColumns() {
         String[] columnKeys = new String[]{"margin"};
         columns.clear();  

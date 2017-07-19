@@ -35,6 +35,7 @@ import adventureworks.entity.dimensions.product.Product;
 import adventureworks.entity.dimensions.product.Subcategory;
 import adventureworks.entity.dimensions.sales.SalesChannel;
 import adventureworks.entity.dimensions.sales.SalesPerson;
+import adventureworks.entity.dimensions.sales.SalesReason;
 import adventureworks.entity.dimensions.sales.SalesReasonType;
 import adventureworks.entity.dimensions.sales.ShippingMethod;
 import adventureworks.entity.dimensions.time.Day;
@@ -383,7 +384,7 @@ public List<Object[]> getCustomerIdForSalesFact(int offset, int max){
 
 
 public List<Object[]> getProductIdAndSalesPersonIdForSalesFact(int offset, int max){
-	Query q = entityManager.createNativeQuery("select st.salesOrderId, pm.DWH_KEY as product, sp.DWH_KEY as salesperson from stagingtable as st"
+	Query q = entityManager.createNativeQuery("select st.salesOrderId, pm.DWH_KEY as product, sp.DWH_KEY as salesperson, st.quantity, st.unitPrice, p.standartCost from stagingtable as st"
 +" left join salesperson_map as sp on st.salesPersonId=sp.SOURCE_KEY"
 +" inner join product_map as pm on pm.SOURCE_KEY= st.productId"
 +" inner join product as p on p.productId=pm.DWH_KEY"
@@ -439,6 +440,26 @@ public List<Object[]> getShippingMethodIdForSalesFact(int offset, int max){
 	
 }
 
+
+public List<Object[]> getTaxrateAndSpecialOffer(int offset, int max){
+	Query q = entityManager.createNativeQuery("SELECT st.salesOrderId,sp.discount FROM stagingtable as st"
++" inner join specialoffer_map  as sm on st.specialOfferId=sm.SOURCE_KEY"
++" inner join specialoffer as sp on sm.DWH_KEY=sp.specialOfferId"
++" order by st.salesOrderId");	
+	return q.setFirstResult(offset).setMaxResults(max).getResultList();
+	
+}
+
+
+public SalesReason getOtherSalesReason(){
+CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+CriteriaQuery<SalesReason> cq = cb.createQuery(SalesReason.class);
+Root<SalesReason> from = cq.from(SalesReason.class);
+cq.select(from).where(cb.equal(from.get("name"),"Other"));
+TypedQuery<SalesReason> q = entityManager.createQuery(cq);
+SalesReason item = q.getSingleResult();
+return item;
+}
 
 @Transactional
 public void persistMapOfEntities(Map<BigInteger, SalesFact> map){

@@ -65,7 +65,7 @@
     <h:body> 
   
      
-       <h:form > 
+       <h:form id="myForm"> 
 <p:panelGrid>
 <p:row>
 <p:column style="text-align: center;">
@@ -109,37 +109,37 @@
   <br/><br/> 
 
 <br/> 
-  <p:commandButton value="ResetTimeDimension" id="resetTime" update="" actionListener="#{olapController.resetTimeDimension}" />
+  <p:commandButton value="ResetTimeDimension" id="resetTime" update="myForm" actionListener="#{olapController.resetTimeDimension}" />
  
  </p:column>
   <p:column style="vertical-align:top">
  <p:outputLabel value="Place" style="font-weight:bold;font-size:20px;"/><br/><br/>
   <h:panelGroup id="billToPanelGroup">
    <p:outputLabel value="BillTo" style="font-weight:bold"/><br/>
-  <h:panelGrid columns="2">
-  <p:outputLabel value="Level: "/>   <p:selectOneMenu  id="billto" value="#{olapController.billToDimensionLevel}">
-  <p:ajax event="change" update="@this" />
-  <f:selectItem itemLabel="" itemValue="" />
+ 
+  <p:outputLabel value="Level: "/>     <p:selectOneMenu id="billto" value="#{olapController.billToDimensionLevel}" >
+   <f:selectItem itemLabel=" " itemValue="" />
             <f:selectItem itemLabel="TERRITORY" itemValue="TERRITORY" />
             <f:selectItem itemLabel="COUNTRY" itemValue="COUNTRY" />
             <f:selectItem itemLabel="STATE/PROVINCE" itemValue="STATE/PROVINCE" />
             <f:selectItem itemLabel="CITY" itemValue="CITY" />   
-            </p:selectOneMenu> 
-            <p:outputLabel value="Filter: "/><p:autoComplete id="filterbill" dropdown="true" value="#{olapController.placeFilter}" queryDelay="1000" completeMethod="#{olapController.completeTextBillTo}" />
- </h:panelGrid>
+            <p:ajax id="fg" event="change" update="@this" />
+          </p:selectOneMenu>
+            <p:outputLabel value="Filter: "/><p:autoComplete id="filterbillTo" dropdown="true" value="#{olapController.billToFilter}" queryDelay="1000" completeMethod="#{olapController.completeTextBillTo}" />
+ 
   </h:panelGroup >
   <h:panelGroup id="orderToToPanelGroup">
    <p:outputLabel value="Ship To" style="font-weight:bold"/><br/>
   <p:outputLabel value="Level: "/>   <p:selectOneMenu   id="orderto" value="#{olapController.orderToDimensionLevel}">
-    <p:ajax event="change" update="@this" />
-   <f:selectItem itemLabel="" itemValue="" />
+<p:ajax event="change" update="orderToToPanelGroup"  listener="#{olapController.test}"/>
+   <f:selectItem itemLabel="" itemValue=" " />
             <f:selectItem itemLabel="TERRITORY" itemValue="TERRITORY" />
             <f:selectItem itemLabel="COUNTRY" itemValue="COUNTRY" />
             <f:selectItem itemLabel="STATE/PROVINCE" itemValue="STATE/PROVINCE" />
             <f:selectItem itemLabel="CITY" itemValue="CITY" />   
           </p:selectOneMenu>
            <br/>
-            <p:outputLabel value="Filter: "/><p:autoComplete id="filterorder" dropdown="true" value="#{olapController.placeFilter}" queryDelay="1000" completeMethod="#{olapController.completeTextShipTo}" />
+            <p:outputLabel value="Filter: "/><p:autoComplete id="filterorder" dropdown="true" value="#{olapController.shipToFilter}" queryDelay="1000" completeMethod="#{olapController.completeTextShipTo}" />
   </h:panelGroup>
   <br/>
 
@@ -152,7 +152,7 @@
 <p:outputLabel value="Product" style="font-weight:bold"/> 
  <h:panelGrid columns="3">
 <p:outputLabel value="Level"/><p:selectOneMenu id="productLevel" value="#{olapController.productDimensionLevel}" >
-  <p:ajax event="change" update="@this" />
+<p:ajax event="change" update="orderDatePanelGroup"  listener="#{olapController.test}"/>
 <f:selectItem itemLabel="" itemValue="" />
             <f:selectItem itemLabel="PRODUCT" itemValue="PRODUCT" />
             <f:selectItem itemLabel="SUBCATEGORY" itemValue="SUBCATEGORY" />
@@ -165,13 +165,14 @@
  <p:outputLabel value="Product Line"/><p:selectOneMenu id="productLine" value="#{olapController.productLineDimension}" >
    <p:ajax event="change" update="@this" />
 <f:selectItem itemLabel="" itemValue="" />
+ <f:selectItem itemLabel="CITYRAD" itemValue="R" />
             <f:selectItem itemLabel="MOUNTAINBIKE" itemValue="M" />
             <f:selectItem itemLabel="TOURENRAD" itemValue="T" />
             <f:selectItem itemLabel="STANDARDRAD" itemValue="S" />        
         </p:selectOneMenu><p:selectBooleanCheckbox value="#{olapController.productLineFilter}" />
 <p:outputLabel value="Product Class"/> <p:selectOneMenu id="productClassLevel" value="#{olapController.productClassDimension}" >
   <p:ajax event="change" update="@this" />
-<f:selectItem itemLabel="" itemValue="" />
+<f:selectItem itemLabel=" " itemValue="" />
             <f:selectItem itemLabel="HOCH" itemValue="H" />
             <f:selectItem itemLabel="MITTEL" itemValue="M" />
             <f:selectItem itemLabel="NIEDRIG" itemValue="L" />        
@@ -192,7 +193,7 @@
       </h:panelGrid>          
  </h:panelGroup>
 <br/> 
- <p:commandButton value="ResetProductDimension" id="resetProduct" update="orderToToPanelGroup,billToPanelGroup" actionListener="#{olapController.resetPlaceDimension}" />
+ <p:commandButton value="ResetProductDimension" id="resetProduct" update="myForm" actionListener="#{olapController.resetProductDimension()}" />
  </p:column>
  <p:column style="vertical-align:top">
   <p:outputLabel value="Sales Dimensions (Misc)" style="font-weight:bold;font-size:20px;"/><br/><br/>
@@ -214,14 +215,14 @@
         <p:outputLabel value="Other Sales Dimensions" style="font-weight:bold"/>
          <h:panelGrid columns="3">
          <p:spacer/><p:spacer/> <p:outputLabel value="Filter "/> 
-        <p:outputLabel value="SalesPerson"/><p:autoComplete id="filterSalesPerson" value="#{olapController.placeFilter}" queryDelay="1000" completeMethod="#{olapController.completeTextSalesPerson}" /><p:spacer/>
-        <p:outputLabel value="SalesChannel"/><p:selectOneMenu id="salesChannel" style="width: 144px;" value="#{olapController.productDimensionLevel}" >
+        <p:outputLabel value="SalesPerson"/><p:autoComplete id="filterSalesPerson" value="#{olapController.shipToFilter}" queryDelay="1000" completeMethod="#{olapController.completeTextSalesPerson}" /><p:spacer/>
+        <p:outputLabel value="SalesChannel"/><p:selectOneMenu id="salesChannel" style="width: 144px;" value="#{olapController.salesChannelDimension}" >
   <p:ajax event="change" update="@this" />
 <f:selectItem itemLabel="" itemValue="" />
             <f:selectItem itemLabel="ONLINE" itemValue="ONLINE" />
             <f:selectItem itemLabel="DIREKT" itemValue="DIREKT" />     
         </p:selectOneMenu><p:selectBooleanCheckbox value="#{olapController.salesChannelFilter}" />
-        <p:outputLabel value="Shipping Method:"/><p:selectOneMenu style="width: 144px;" id="shippingMethod" value="#{olapController.productDimensionLevel}" >
+        <p:outputLabel value="Shipping Method:"/><p:selectOneMenu style="width: 144px;" id="shippingMethod" value="#{olapController.shippingMethodDimension}" >
   <p:ajax event="change" update="@this" />
 <f:selectItem itemLabel="" itemValue="" />
             <f:selectItem itemLabel="XRQ - TRUCK GROUND" itemValue="XRQ - TRUCK GROUND" />
@@ -233,13 +234,13 @@
  </h:panelGrid>
   </h:panelGroup>
   <br/> 
- <p:commandButton value="ResetSalesDimension" id="resetSales" update="orderToToPanelGroup,billToPanelGroup" actionListener="#{olapController.resetPlaceDimension}" />
+ <p:commandButton value="ResetSalesDimension" id="resetSales" update="orderToToPanelGroup,billToPanelGroup" actionListener="#{olapController.resetSalesDimension()}" />
  </p:column>
   <p:column style="vertical-align:top">
    <p:outputLabel value="Customer" style="font-weight:bold;font-size:20px;"/><br/><br/>
   <h:panelGroup>
   <h:panelGrid columns="2">
-<h:outputText value="Customer Type" /> <p:selectOneMenu id="customerType" value="#{olapController.productStyleDimension}" >
+<h:outputText value="Customer Type" /> <p:selectOneMenu id="customerType" value="#{olapController.customerTypeDimension}" >
   <p:ajax event="change" update="@this" />
 <f:selectItem itemLabel="" itemValue="" />
             <f:selectItem itemLabel="INDIVIDUAL" itemValue="INDIVIDUAL" />
@@ -247,17 +248,7 @@
             <f:selectItem itemLabel="ALL" itemValue="ALL" />        
         </p:selectOneMenu>
 
-<h:outputText value="Customer Region" /> <p:spacer/>
-  <p:outputLabel value="Level: "/>   <p:selectOneMenu   id="customerRegion" value="#{olapController.billToDimensionLevel}">
-    <p:ajax event="change" update="@this" />
-  <f:selectItem itemLabel="" itemValue="" />
-            <f:selectItem itemLabel="TERRITORY" itemValue="TERRITORY" />
-            <f:selectItem itemLabel="COUNTRY" itemValue="COUNTRY" />
-            <f:selectItem itemLabel="STATE/PROVINCE" itemValue="STATE/PROVINCE" />
-            <f:selectItem itemLabel="CITY" itemValue="CITY" />   
-            </p:selectOneMenu> 
-            <p:outputLabel value="Filter: "/><p:autoComplete id="filterCustomerRegion" dropdown="true" value="#{olapController.placeFilter}" queryDelay="1000" completeMethod="#{olapController.completeTextCustomerRegion}" />
- </h:panelGrid>
+</h:panelGrid> 
   </h:panelGroup >
 <br/>
 <br/>
@@ -267,13 +258,13 @@
 <h:panelGrid columns="3">
 <p:spacer/><p:spacer/><p:outputLabel value="Filter "/> 
 
-<p:outputLabel value="Gender "/>  <p:selectOneMenu   value="#{olapController.billToDimensionLevel}"> <f:selectItem itemLabel="" itemValue="" />
+<p:outputLabel value="Gender "/>  <p:selectOneMenu   value="#{olapController.genderDimension}"> 
               <p:ajax event="change" update="@this" />
             <f:selectItem itemLabel="" itemValue="" />
             <f:selectItem itemLabel="M" itemValue="M" />
             <f:selectItem itemLabel="F" itemValue="F" />  
             </p:selectOneMenu><p:selectBooleanCheckbox value="#{olapController.genderFilter}" />
-<p:outputLabel value="AgeGroup "/>   <p:selectOneMenu   value="#{olapController.billToDimensionLevel}">
+<p:outputLabel value="AgeGroup "/>   <p:selectOneMenu   value="#{olapController.ageGroupDimension}">
 <p:ajax event="change" update="@this" />
 <f:selectItem itemLabel="" itemValue="" />             
             <f:selectItem itemLabel="Jugendlich:0-20" itemValue="0-20" />
@@ -281,7 +272,7 @@
             <f:selectItem itemLabel="Mittel:40-60" itemValue="40-60" />
             <f:selectItem itemLabel="Alt:60+" itemValue="60+" />   
             </p:selectOneMenu><p:selectBooleanCheckbox value="#{olapController.ageGroupFilter}" />
-<p:outputLabel value="YearlyIncomeGroup "/> <p:selectOneMenu    value="#{olapController.billToDimensionLevel}"> 
+<p:outputLabel value="YearlyIncomeGroup "/> <p:selectOneMenu    value="#{olapController.incomeGroupDimension}"> 
 <p:ajax event="change" update="@this" /> 
 <f:selectItem itemLabel="" itemValue="" />
             <f:selectItem itemLabel="0-25000" itemValue="0-25000" />
@@ -290,7 +281,7 @@
             <f:selectItem itemLabel="75001-100000" itemValue="75001-100000" />  
             <f:selectItem itemLabel="greater than 100000" itemValue="greater than 100000" />  
             </p:selectOneMenu><p:selectBooleanCheckbox value="#{olapController.yearlyIncomeFilter}" />
-<p:outputLabel value="HomeOwner "/> <p:selectOneMenu    value="#{olapController.billToDimensionLevel}"> 
+<p:outputLabel value="HomeOwner "/> <p:selectOneMenu    value="#{olapController.homeOwnerDimension}"> 
 <p:ajax event="change" update="@this" />
 <f:selectItem itemLabel="" itemValue="" />
             <f:selectItem itemLabel="YES" itemValue="YES" />
@@ -308,14 +299,14 @@
         
  
   
-  <p:commandButton value="ResetCustomerDimension" id="resetCustomer" update="orderToToPanelGroup,billToPanelGroup" actionListener="#{olapController.resetPlaceDimension}" />
+  <p:commandButton value="ResetCustomerDimension" id="resetCustomer" update="orderToToPanelGroup,billToPanelGroup" actionListener="#{olapController.resetCustomerDimension()}" />
  
  </p:column>
  </p:row>
  <p:row><p:column colspan="5">
  Group by:    <p:autoComplete    multiple="true" forceSelection="true" value="#{olapController.groupbyList}" completeMethod="#{olapController.completeTextGroupBy}" />
 OrderBy  <p:autoComplete    multiple="true" forceSelection="true" value="#{olapController.orderbyList}" completeMethod="#{olapController.completeTextOrderBy}" />
- <p:commandButton value="Execute OlapQuery"  actionListener="#{olapController.buildAndExecuteQuery()}" />
+ <p:commandButton value="Execute OlapQuery"  actionListener="#{olapController.buildAndExecuteQuery()}" update=":myForm:cars " />
  </p:column></p:row>
  
  
@@ -335,14 +326,7 @@ OrderBy  <p:autoComplete    multiple="true" forceSelection="true" value="#{olapC
             <f:selectItem itemLabel="AVG" itemValue="AVG" />
             <f:selectItem itemLabel="MIN" itemValue="MIN" />
             <f:selectItem itemLabel="MAX" itemValue="MAX" />
-        </p:selectOneRadio>
-      
- <p:outputLabel for="taxAmt" value="taxAmt: " style="font-weight:bold;"/>  <p:selectOneRadio id="taxAmt" value="#{olapController.taxAmtFunction}">
-            <f:selectItem itemLabel="SUM" itemValue="SUM" />
-            <f:selectItem itemLabel="AVG" itemValue="AVG" />
-            <f:selectItem itemLabel="MIN" itemValue="MIN" />
-            <f:selectItem itemLabel="MAX" itemValue="MAX" />
-        </p:selectOneRadio>
+        </p:selectOneRadio>    
 
  <p:outputLabel for="discount" value="  discount: " style="font-weight:bold;"/>  <p:selectOneRadio id="discount" value="#{olapController.discountFunction}">
             <f:selectItem itemLabel="SUM" itemValue="SUM" />
@@ -385,19 +369,46 @@ OrderBy  <p:autoComplete    multiple="true" forceSelection="true" value="#{olapC
 <h:panelGrid columns="2">
 <p:outputLabel value="Native MySql Query" />
 <p:inputTextarea value="#{olapController.nativeQuery}"/>
-<p:commandButton value="Show Schema Diagramms"  actionListener="#{olapController.showSchemaDialog()}"/><p:commandButton value="Execute" actionListener="#{olapController.executeNativeQuery}"/>
+<p:commandButton value="Show Schema Diagramms"  actionListener="#{olapController.showSchemaDialog()}"/><p:commandButton value="Execute" actionListener="#{olapController.executeNativeQuery}" update="nativeQueryTable,message" />
 </h:panelGrid>
- <p:dataTable id="nativeQueryTable" var="car" value="#{nativeQueryDatatableView.cars}" widgetVar="carsTable" paginator="true" paginatorTemplate="{RowsPerPageDropdown} {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
-                 rowsPerPageTemplate="5,10,15"  lazy="true">                    
-        <p:columns value="#{dtColumnsView.columns}" var="column" columnIndexVar="colIndex" sortBy="#{car[column.property]}" filterBy="#{car[column.property]}">
+<p:outputLabel style="font-weight:bold;color:red" id="message" value="#{olapController.errorMessage}"/><p:spacer/>
+
+ <p:dataTable id="nativeQueryTable" var="car" value="#{nativeQueryDatatableView.cars}" widgetVar="carsTable" paginator="true" paginatorTemplate=" {FirstPageLink} {PreviousPageLink} {CurrentPageReport} {NextPageLink} {LastPageLink}"
+                 rows="20"  lazy="true">                    
+        <p:columns value="#{nativeQueryDatatableView.columns}" var="column" columnIndexVar="colIndex"  >
             <f:facet name="header">
                 <h:outputText value="#{column.header}" />
             </f:facet>
-            <h:outputText value="#{car[column.property]}" />
+            <h:outputText value="#{car.map.get(column.property)}" />
         </p:columns>
     </p:dataTable>
-<p:outputLabel value="#{olapController.errorMessage}"/>
+
 </p:tab> 
+<p:tab title="ETL MetaInformation">
+ <p:dataTable id="etlMetaTable" var="car" value="#{olapController.etlMetaInformation}" rows="10"
+                         paginator="true"
+                         paginatorTemplate="{CurrentPageReport} {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"
+                        >
+        <p:column headerText="Id">
+            <h:outputText value="#{car.id}" />
+        </p:column>
+ 
+        <p:column headerText="Run_Date">
+            <h:outputText value="#{car.etlJobRun_Date}" />
+        </p:column>
+ 
+        <p:column headerText="TransferredFacts">
+            <h:outputText value="#{car.transferredFacts}" />
+        </p:column>
+         <p:column headerText="Duration">
+            <h:outputText value="#{car.duration}" />
+        </p:column>
+ 
+        <p:column headerText="ChangedDimensions">
+            <h:outputText value="#{car.changedDimensions}" />
+        </p:column>
+    </p:dataTable>
+ </p:tab>
  </p:accordionPanel>
 </p:column>
 </p:row>
@@ -422,7 +433,7 @@ OrderBy  <p:autoComplete    multiple="true" forceSelection="true" value="#{olapC
     <p:column style="width:90%;vertical-align:top" >
     <p:remoteCommand name="treeToTable" actionListener="#{columnManagerView.treeToTable()}" update="tree cars" oncomplete="initDND()"/>
     <p:remoteCommand name="tableToTree" actionListener="#{columnManagerView.tableToTree()}" update="tree cars" oncomplete="initDND()"/>
-    <p:dataTable  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink} {RowsPerPageDropdown} "  rowsPerPageTemplate="5,10,15"  paginator="true" id="cars" var="car" value="#{columnManagerView.tableObjects}">                    
+    <p:dataTable  paginatorTemplate="{CurrentPageReport}  {FirstPageLink} {PreviousPageLink} {PageLinks} {NextPageLink} {LastPageLink}"    paginator="true" rows="20" id="cars" var="car" value="#{columnManagerView.tableObjects}">                    
         <f:facet name="header">
        OLAP-Cube
     </f:facet>
@@ -443,7 +454,7 @@ OrderBy  <p:autoComplete    multiple="true" forceSelection="true" value="#{olapC
                 <h:outputText value="#{column.header}" />
             </f:facet>
  
-            <h:outputText value="#{car[column.property]}" />
+            <h:outputText value="#{car.map.get(column.property)}" />
         </p:columns>
     </p:dataTable>
     </p:column>

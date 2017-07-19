@@ -11,19 +11,11 @@ import javax.persistence.Table;
 public class Gender {
  
 	@Id
-	private long genderId;
-	
 	private String genderCode; 
 	@Column(nullable=false)
 	private Timestamp modfiedDate;
 	
-	public long getGenderId() {
-		return genderId;
-	}
-
-	public void setGenderId(long genderId) {
-		this.genderId = genderId;
-	}
+	
 
 	private String gender;
 

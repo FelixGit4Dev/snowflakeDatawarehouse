@@ -68,7 +68,7 @@ import javax.persistence.Table;
 //		
 //		)
 @Entity
-@Table( indexes = {@Index(name = "my_index_name",  columnList="salesOrderId", unique = true)})
+@Table
 public class StagingTable implements Serializable {
 
 	

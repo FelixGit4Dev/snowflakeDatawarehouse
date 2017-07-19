@@ -14,7 +14,7 @@ public class IndividualSurvey {
 	
 	private String maritalStatus;
 
-	private  double yearlyIncome;	
+	private  String yearlyIncome;	
 
 	private String gender;
 
@@ -57,10 +57,10 @@ private String xmlns;
 		this.maritalStatus = maritalStatus;
 	}
 	@XmlElement(name="YearlyIncome")
-	public double getYearlyIncome() {
+	public String getYearlyIncome() {
 		return yearlyIncome;
 	}
-	public void setYearlyIncome(double yearlyIncome) {
+	public void setYearlyIncome(String yearlyIncome) {
 		this.yearlyIncome = yearlyIncome;
 	}
 	@XmlElement(name="Gender")
@@ -123,7 +123,7 @@ private String xmlns;
 		super();
 		// TODO Auto-generated constructor stub
 	}
-	public IndividualSurvey(String dateFirstPurchase, String birthDate, String maritalStatus, double yearlyIncome,
+	public IndividualSurvey(String dateFirstPurchase, String birthDate, String maritalStatus, String yearlyIncome,
 			String gender, int totalChildren, int numberChildrenAtHome, String education, String occupation,
 			int homeOwnerFlag, int numberCarsOwned, String commuteDistance) {
 		super();

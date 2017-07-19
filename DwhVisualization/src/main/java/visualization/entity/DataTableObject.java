@@ -1,25 +1,23 @@
 package visualization.entity;
 
+import java.util.LinkedHashMap;
+
 public class DataTableObject {
 
-private String time;
+	public DataTableObject() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
 
-private String product;
-private String  productStyle;
-private String productClass;
-private String productLine;
+	private LinkedHashMap<String, Object> map= new LinkedHashMap<String,Object>();
 
+	public LinkedHashMap<String, Object> getMap() {
+		return map;
+	}
 
-private String salesPerson;
-
-private String shippingMethod;
-
-private String salesReason;
-
-private String salesChannel;
-
-
-private long count;
+	public void setMap(LinkedHashMap<String, Object> map) {
+		this.map = map;
+	}
 
 
 	

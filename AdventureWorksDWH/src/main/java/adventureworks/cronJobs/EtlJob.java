@@ -50,7 +50,7 @@ private	TimeDimensionTransformations timeDimensionTransformations;
 
 	public void execute(JobExecutionContext arg0) throws JobExecutionException {
 	if(isRunning){
-	log.info("an  ETL-Job is already rnning, no new job will be started");	
+	log.info("an  ETL-Job is already running, no new job will be started");	
 	}
 	else{
 		SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");

@@ -33,8 +33,10 @@ import adventureworks.entitySource.Salesorderdetail;
 import adventureworks.entitySource.Salesorderheader;
 import adventureworks.entitySource.Salesperson;
 import adventureworks.entitySource.Salesreason;
+import adventureworks.entitySource.Salestaxrate;
 import adventureworks.entitySource.Salesterritory;
 import adventureworks.entitySource.Shipmethod;
+import adventureworks.entitySource.Specialoffer;
 import adventureworks.entitySource.Stateprovince;
 import adventureworks.entitySource.Store;
 
@@ -278,6 +280,28 @@ public List<Salesterritory> getAllTerritories(int offset, int max) {
 	
 }
 
+public List<Specialoffer> getAllSpecialOffers(int offset, int max) {
+	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	CriteriaQuery<Specialoffer> cq = cb.createQuery(Specialoffer.class);
+	Root<Specialoffer> from = cq.from(Specialoffer.class);
+	cq.select(from).orderBy(cb.asc(from.get("modifiedDate")));
+	TypedQuery<Specialoffer> q = entityManager.createQuery(cq);
+	List<Specialoffer> item = q.setFirstResult(offset).setMaxResults(max).getResultList();
+	return item;
+	
+}
+
+public List<Salestaxrate> getAllSalesTaxrates(int offset, int max) {
+	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	CriteriaQuery<Salestaxrate> cq = cb.createQuery(Salestaxrate.class);
+	Root<Salestaxrate> from = cq.from(Salestaxrate.class);
+	cq.select(from).orderBy(cb.asc(from.get("modifiedDate")));
+	TypedQuery<Salestaxrate> q = entityManager.createQuery(cq);
+	List<Salestaxrate> item = q.setFirstResult(offset).setMaxResults(max).getResultList();
+	return item;
+	
+}
+
 
 
 public Individual getIndividualForCustomerId(int id){
@@ -305,7 +329,7 @@ public Contact getContactForCustomerId(int id){
 
 public List<StagingTable> getJoinedSalesOrderAndHeaders(int offset, int maxResults){ //salesorderheader.SalesOrderID as salesorderId,
 Query q= entityManager.createNativeQuery("  Select sdc.SalesOrderDetailID as detailId,  salesorderheader.ShipMethodID as shipMethod,salesorderheader.OrderDate as orderDate,salesorderheader.ShipDate as shipDate, salesorderheader.OnlineOrderFlag as online,"
-+" salesorderheader.CustomerID as customer,COALESCE(salesorderheader.SalesPersonID, '') as salesperson,sdc.OrderQty as quantity, sdc.ProductID as product ,sdc.SpecialOfferID as specialOffer,sdc.UnitPrice as unitPrice,COALESCE(sor.SalesReasonID,'') as salesReason, ad.City as billTo ,ad.StateProvinceID as billToState,adc.City as shipTo, adc.StateProvinceID as shipToState From salesorderdetail as sdc"
++" salesorderheader.CustomerID as customer,COALESCE(salesorderheader.SalesPersonID, '') as salesperson,sdc.OrderQty as quantity, sdc.ProductID as product ,sdc.SpecialOfferID as specialOffer,sdc.UnitPrice as unitPrice,COALESCE(sor.SalesReasonID,'') as salesReason, ad.City as billTo ,ad.StateProvinceID as billToState,adc.City as shipTo, adc.StateProvinceID as shipToState, sdc.SpecialOfferID From salesorderdetail as sdc"
 +" inner Join salesorderheader on salesorderheader.SalesOrderID=sdc.SalesOrderID"
 +" inner join address ad on salesorderheader.BillToAddressID=ad.AddressID"
 +" inner join address adc on salesorderheader.ShipToAddressID=adc.AddressID"

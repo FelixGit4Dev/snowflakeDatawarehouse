@@ -19,6 +19,9 @@ public class AgeGroup {
 	@Column(nullable=false)
 	private Timestamp modfiedDate;
 	
+	private int lower;
+	private int upper;
+	
 	public long getAgeGroupId() {
 		return ageGroupId;
 	}
@@ -50,6 +53,18 @@ public class AgeGroup {
 		super();
 		this.name = name;
 		this.modfiedDate = modfiedDate;
+	}
+	public int getLower() {
+		return lower;
+	}
+	public void setLower(int lower) {
+		this.lower = lower;
+	}
+	public int getUpper() {
+		return upper;
+	}
+	public void setUpper(int upper) {
+		this.upper = upper;
 	}
 	
 }

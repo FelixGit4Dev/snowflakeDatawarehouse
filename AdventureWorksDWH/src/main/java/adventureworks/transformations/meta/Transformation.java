@@ -1,13 +1,14 @@
 package adventureworks.transformations.meta;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
 public interface Transformation extends Serializable{
 
 	
-	public void initDimension();
+	public HashMap<String,Long> initDimension();
 		
 
 	
-	public void update();
+	public HashMap<String,Long> update();
 }

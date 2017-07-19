@@ -30,11 +30,21 @@ public class NativeQueryDatatableView implements Serializable {
      
     private List<DynamicDataTableObject> cars;
      
- 
+ public void createColumns(List<String> namen){
+	 columns = new ArrayList<ColumnModel>();  
+	for(String name:namen ){
+	columns.add(new ColumnModel(name, name));	
+	}
+ }
  
    
      
-    public List<DynamicDataTableObject> getCars() {
+    public void setCars(List<DynamicDataTableObject> cars) {
+		this.cars = cars;
+	}
+
+
+	public List<DynamicDataTableObject> getCars() {
         return cars;
     }
  
@@ -91,4 +101,43 @@ public class NativeQueryDatatableView implements Serializable {
             return property;
         }
     }
+    
+    
+  public ArrayList<String> extractColumnNames(String query){
+	  String testString=query;
+	  ArrayList<String> list = new ArrayList<>();
+	  testString = testString.trim();
+	  if(testString.toUpperCase().startsWith("SELECT")){
+	  testString=testString.substring(6);
+	  int index = testString.toUpperCase().lastIndexOf("FROM");
+	  testString = testString.substring(0, index);
+	  String[] arr = testString.split(",");
+	
+	  for(String s : arr){
+	list.add(s.trim());
+	  }
+	  
+	  }
+	  return list;
+  }  
+    
+    
+  public static void main (String[] args){
+String testString="select customer.CustomerID, store.Name from customer inner join store  on customer.CustomerID=store.CustomerID";
+
+testString = testString.trim();
+if(testString.toUpperCase().startsWith("SELECT")){
+testString=testString.substring(6);
+int index = testString.toUpperCase().lastIndexOf("FROM");
+testString = testString.substring(0, index);
+String[] arr = testString.split(",");
+for(String s : arr){
+System.out.println(s.trim());	
+}
+}
+  }  
+    
+    
+    
+    
 }

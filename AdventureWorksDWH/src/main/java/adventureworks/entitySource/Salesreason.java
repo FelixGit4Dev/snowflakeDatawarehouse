@@ -23,10 +23,10 @@ public class Salesreason implements Serializable {
 	@Column(nullable=false)
 	private Timestamp modifiedDate;
 
-	@Column(nullable=false, length=50)
+	@Column(name="Name" ,nullable=false, length=50)
 	private String name;
 
-	@Column(nullable=false, length=50)
+	@Column(name="ReasonType", nullable=false, length=50)
 	private String reasonType;
 
 	public Salesreason() {

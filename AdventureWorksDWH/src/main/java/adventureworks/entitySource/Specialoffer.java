@@ -22,14 +22,14 @@ public class Specialoffer implements Serializable {
 
 	private String description;
 
-	private double discountPct;
+	private Double discountPct;
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date endDate;
 
-	private int maxQty;
+	private Integer maxQty;
 
-	private int minQty;
+	private Integer minQty;
 
 	private Timestamp modifiedDate;
 
@@ -67,11 +67,11 @@ public class Specialoffer implements Serializable {
 		this.description = description;
 	}
 
-	public double getDiscountPct() {
+	public Double getDiscountPct() {
 		return this.discountPct;
 	}
 
-	public void setDiscountPct(double discountPct) {
+	public void setDiscountPct(Double discountPct) {
 		this.discountPct = discountPct;
 	}
 
@@ -83,19 +83,19 @@ public class Specialoffer implements Serializable {
 		this.endDate = endDate;
 	}
 
-	public int getMaxQty() {
+	public Integer getMaxQty() {
 		return this.maxQty;
 	}
 
-	public void setMaxQty(int maxQty) {
+	public void setMaxQty(Integer maxQty) {
 		this.maxQty = maxQty;
 	}
 
-	public int getMinQty() {
+	public Integer getMinQty() {
 		return this.minQty;
 	}
 
-	public void setMinQty(int minQty) {
+	public void setMinQty(Integer minQty) {
 		this.minQty = minQty;
 	}
 

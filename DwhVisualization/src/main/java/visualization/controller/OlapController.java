@@ -3,6 +3,7 @@ package visualization.controller;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -15,8 +16,12 @@ import org.primefaces.context.RequestContext;
 
 import com.mysql.jdbc.log.Log;
 
+
 import visualization.dao.DatwarehouseAccesDao;
 import visualization.entity.DataTableObject;
+import visualization.entity.DynamicDataTableObject;
+import visualization.entity.QueryComponentsObject;
+import visualization.entity.entityDwh.EtlMetaInformation;
 import visualization.queries.QueryBuilder;
 import visualization.queries.QueryConstants;
 
@@ -36,6 +41,8 @@ public class OlapController implements Serializable{
 	@Inject
 	private ColumnManagerView columnManagerView;
 	
+	@Inject
+	private NativeQueryDatatableView nqdv;
 	private static final long serialVersionUID = 1L;
 
 	private String nativeQuery;
@@ -47,7 +54,6 @@ public class OlapController implements Serializable{
 	
 	private String quantityFunction="SUM";
 	private String unitPriceFunction="SUM";
-	private String taxAmtFunction="SUM";
 	private String discountFunction="SUM";
 	private String totalFunction="SUM";
 	private String standartCostFunction="SUM";
@@ -71,8 +77,15 @@ public class OlapController implements Serializable{
 	private String productLineDimension="";
 	private String makedimension="";
 	
+	private String genderDimension="";
+	private String ageGroupDimension="";
+	private String incomeGroupDimension="";
+	private String homeOwnerDimension="";
+	
 	private String salesReasonDimensionLevel="";
-
+private String salesChannelDimension="";
+private String shippingMethodDimension="";
+	
 	private String customerTypeDimension="";
 	private String customerRegionDimension="";
 	
@@ -86,7 +99,10 @@ public class OlapController implements Serializable{
 	// Filter
 	private String orderDateFilter;
 	private String shipDateFilter;
-	private String placeFilter;
+	private String shipToFilter;
+	private String billToFilter;
+	
+	
 	private String productFilter;
 	private String salesReasonFilter;
 	private String salesPersonFilter;
@@ -117,163 +133,445 @@ public class OlapController implements Serializable{
 	private boolean ShippingMethod;
 	
 	
-	private List<String> orderbyList;
-	private List<String> groupbyList;
+	private List<String> orderbyList= new ArrayList<String>();
+	private List<String> groupbyList =new ArrayList<String>();
+	
+	
+	public List<EtlMetaInformation> getEtlMetaInformation(){
+		return this.dao.getAllEtlMetaInformation();	
+		}
+	
 	
 	public void executeNativeQuery(){
-	extractColumnNames();	
+	ArrayList<String> names = nqdv.extractColumnNames(nativeQuery);	
+	ArrayList<DynamicDataTableObject> tablesObjects= new ArrayList<>();
+	if(names.size()>1){
+	tablesObjects =this.createNativeQueryObjects(names,this.dao.executeNativeQueryMulticolumns(nativeQuery),null);	
+	}
+	else{
+	tablesObjects=  this.createNativeQueryObjects(names,null,this.dao.executeNativeQuerySingleColumn(nativeQuery));	
+	}
+	nqdv.createColumns(names);
+	this.nqdv.setCars(tablesObjects);
 	}
 	
 	
-	private void extractColumnNames() {
+	
+	public ArrayList<DynamicDataTableObject> createNativeQueryObjects(ArrayList<String> columnNames, List<Object[]> multi, List<Object> single){
+	ArrayList<DynamicDataTableObject> objects = new ArrayList<>();
+		if(multi==null){
+		for( int i=0; i<columnNames.size();i++){
+			LinkedHashMap<String, Object> map= new LinkedHashMap<>();
+			map.put(columnNames.get(i), ((ArrayList<Object>)single).get(i) );
+			DynamicDataTableObject dto= new DynamicDataTableObject();
+			dto.setMap(map);
+			objects.add(dto); 	
+		
+		}
+	}
+	else{
+		for(Object[] arr : multi){
+			DynamicDataTableObject dto= new DynamicDataTableObject();
+			LinkedHashMap<String, Object> map= new LinkedHashMap<>();
+		for( int i=0; i<columnNames.size();i++){
+map.put(columnNames.get(i), arr[i] );				
+	}
+		dto.setMap(map);
+		objects.add(dto); 	
+		}
+		}
+		return objects; 
+	}
+
+
+
+	public QueryComponentsObject evaluateDimensions(){
+		
+		HashMap<String, HashMap<String,String>> result= new HashMap<>();
+	ArrayList<String> innerJoin= new ArrayList<String>();
+	ArrayList<String> where= new ArrayList<String>();
+	ArrayList<String> groupBy= new ArrayList<String>();
+	LinkedHashMap<String, String> select= new LinkedHashMap<String,String>();
+	this.buildStaticSelectPart(select);
+	evauluateTimeDimension(innerJoin,where,select,groupBy);
+	evauluatePlaceDimension(innerJoin,where,select,groupBy);
+	evauluateCustomerDimension(innerJoin,where,select,groupBy);
+	evauluateSalesDimension(innerJoin,where,select,groupBy);
+	evauluateProductDimension(innerJoin,where,select,groupBy);
+	
+
+
+	return new QueryComponentsObject(innerJoin,select,where,groupBy);
+	}
+	
+	
+	private void evauluateProductDimension(ArrayList<String> innerjoin, ArrayList<String> where,
+			HashMap<String, String> select,ArrayList<String> groupBy) {
+	HashMap<String, String> lineMap= new HashMap<String,String>();
+	lineMap.put("", "");
+	lineMap.put("", "");
+	lineMap.put("", "");
+	lineMap.put("", "");
+	HashMap<String, String> classMap= new HashMap<String,String>();
+	HashMap<String, String> styleMap= new HashMap<String,String>();
+	HashMap<String, String> makeMap= new HashMap<String,String>();
+		
+		boolean productjoin= false;
+		if(productDimensionLevel!=null && !"".equals(productDimensionLevel)){
+				switch (productDimensionLevel) {
+				case "PRODUCT": 
+					productjoin=true;
+					innerjoin.add("inner join product as prod on prod.productId=sf.productId \n");
+				select.put("productDimension","prod.name");
+				if(this.groupbyList!=null && groupbyList.contains("Product")){
+				groupBy.add("prod.productId");}
+				if(productFilter!=null && "".equals(productFilter)){
+				where.add("prod.name='"+productFilter+"'");	
+				}
+					break;
+				case"SUBCATEGORY": 
+					productjoin=true;
+					innerjoin.add("inner join product as prod on prod.productId=sf.productId \n");
+					innerjoin.add("inner join subcategory as subcat on subcat.subcategoryId=prod.subcategoryId \n");
+					if(this.groupbyList!=null && groupbyList.contains("Product")){groupBy.add("subcat.subcategoryId");}
+					select.put("productDimension","subcat.name");
+					if(productFilter!=null && "".equals(productFilter)){
+						where.add("subcat.name='"+productFilter+"'");	
+						}
+					break;
+
+				case "CATEGORY":
+					productjoin=true;
+					innerjoin.add("inner join product as prod on prod.productId=sf.productId \n");
+					innerjoin.add("inner join subcategory as subcat on subcat.subcategoryId=prod.subcategoryId \n");
+					innerjoin.add(" inner join category as cat on cat.categoryId=subcat.categoryId \n");
+					if(this.groupbyList!=null && groupbyList.contains("Product")){groupBy.add("cat.categoryId");}
+					select.put("productDimension","cat.CATEGORY_NAME");
+					if(productFilter!=null && "".equals(productFilter)){
+						where.add("cat.CATEGORY_NAME='"+productFilter+"'");	
+						}
+					break; 	
+				default:
+					break;
+				}	
+		}
+		if(this.productLineDimension!=null && !"".equals(productLineDimension)){
+			if(!productjoin){
+				innerjoin.add("inner join product as prod on prod.productId=sf.productId \n");
+				productjoin=true;
+			}
+			innerjoin.add("inner join productline as pl on prod.productLine=pl.productLineCode \n");
+			select.put("productLine","pl.productLineName");
+			if(this.groupbyList!=null && groupbyList.contains("ProductLine")){
+			groupBy.add("prod.productLine");	
+			}
+			if(this.productLineFilter)	{
+			where.add("pl.productLineCode='"+productLineDimension+"'");	
+			}
+			
+		}
+if(this.productClassDimension!=null && !"".equals(productClassDimension)){
+	if(!productjoin){
+		innerjoin.add("inner join product as prod on prod.productId=sf.productId \n");
+		productjoin=true;
+	}
+	innerjoin.add("inner join productclasse as pc on prod.klasse=pl.productClassCode \n");
+	select.put("productClass","pc.className");
+	if(this.groupbyList!=null && groupbyList.contains("ProductClass")){
+		groupBy.add("prod.klasse");	
+		}
+	if(this.productClassFilter)	{
+		where.add("pl.prodcutClassCode='"+productClassDimension+"'");	
+		}
+		}
+if(this.productStyleDimension!=null && !"".equals(productStyleDimension)){
+	if(!productjoin){
+		innerjoin.add("inner join product as prod on prod.productId=sf.productId \n");
+		productjoin=true;
+	}
+	innerjoin.add("inner join productstyle as prodst on prod.style=prodst.styleCode \n");
+	select.put("productStyle","prodst.StyleName");
+	if(this.groupbyList!=null && groupbyList.contains("ProductStyle")){
+		groupBy.add("prod.style");	
+		}
+	if(this.productStyleFilter)	{
+		where.add("pl.prodcutClassCode='"+productStyleDimension+"'");	
+		}
+
+}
+if(this.makedimension!=null && !"".equals(makedimension)){
+	if(!productjoin){
+		innerjoin.add("inner join product as prod on prod.productId=sf.productId \n");
+		productjoin=true;
+	}
+	innerjoin.add("inner join make_flag as mf on prod.makeFlag=mf.makeTypeCode \n");
+	select.put("makeFlag","mf.makeType");
+	if(this.groupbyList!=null && groupbyList.contains("Make")){
+		groupBy.add("prod.makeFlag");	
+		}
+	if(this.makeFilter)	{
+		where.add("pl.prodcutClassCode='"+makedimension+"'");	
+		}
+
+}
+		
+		
+		
 		// TODO Auto-generated method stub
-		
-	}
-
-
-	public HashMap<String, HashMap<String, List<String>>> evaluateDimensions(){
-		HashMap<String, HashMap<String,List<String>>> result= new HashMap<>();
-	HashMap<String, List<String>> innerJoin= new HashMap<>();
-	HashMap<String, List<String>> where= new HashMap<>();
-	HashMap<String, List<String>> groupBy= new HashMap<>();
-	HashMap<String, List<String>> select= new HashMap<>();
-	evauluateTimeDimension(innerJoin,where,select);
-	evauluatePlaceDimension(innerJoin,where,select);
-	evauluateCustomerDimension(innerJoin,where,select);
-	evauluateSalesDimension(innerJoin,where,select);
-	evauluateProductDimension(innerJoin,where,select);
-	result.put("innerJoin", innerJoin);
-	result.put("where", where);
-	result.put("select", select);
-	result.put("groupBy", groupBy );
-	return result;
-	}
 	
-	
-	private void evauluateProductDimension(HashMap<String, List<String>> innerJoin, HashMap<String, List<String>> where,
-			HashMap<String, List<String>> select) {
-		ArrayList<String> joins=new ArrayList<>();
-		ArrayList<String> wheres=new  ArrayList<String>();
-		ArrayList<String> selects= new ArrayList<String>();
 		
 		
-		
-		// TODO Auto-generated method stub
-		innerJoin.put("product",joins );
-		where.put("product",wheres );
-		
-		select.put("product",selects );
 		
 	}
 
 
-	public HashMap<String, HashMap<String,List<String>>> evaluateGroupBy(){
-		return null;
-		
-	}
+
 	
 	public HashMap<String, HashMap<String,List<String>>> evaluateOrderBy(){
 		return null;
 		
 	}
 	
-	private void evauluateSalesDimension(HashMap<String, List<String>> innerJoin, HashMap<String, List<String>> where, HashMap<String, List<String>> select) {
-		ArrayList<String> joins=new ArrayList<>();
-		ArrayList<String> wheres=new  ArrayList<String>();
-		ArrayList<String> selects= new ArrayList<String>();
-		
+	private void evauluateSalesDimension(ArrayList<String> innerJoin, ArrayList<String> where, HashMap<String, String> select,ArrayList<String> groupBy) {
+	if(salesReasonDimensionLevel!=null && !"".equals(salesReasonDimensionLevel)){	
+switch (salesReasonDimensionLevel) {
+case "SALESREASON":
+	innerJoin.add("inner join salesreason as salesr on sf.salesReason=salesr.salesReasonId \n");
+	select.put("salesReason","salesr.name");
+	if(this.groupbyList!=null && groupbyList.contains("SalesReason")){
+		groupBy.add("salesr.salesReasonId");	
+		}
+	if(salesReasonFilter!=null && !"".equals(salesReasonFilter)){
+	where.add("salesr.name='"+salesReasonFilter+"'");	
+	}
+	break;
+case "REASONTYPE":
+	innerJoin.add("inner join salesreason as salesr on sf.salesReason=salesr.salesReasonId \n");
+	innerJoin.add("inner join salesreasontype as salesrt on saler.salesReasonTypeId=salesrt.salesReasonTypeId \n");
+	select.put("salesReason","salesrt.typeName");
+	if(this.groupbyList!=null && groupbyList.contains("SalesReason")){
+		groupBy.add("salesrt.salesReasonTypeId");	
+		}
+	break;
+
+default:
+	break;
+}}		
+if(salesChannelDimension!=null && !"".equals(salesChannelDimension)){
+	innerJoin.add("inner join saleschannel as sc on saleschannel.salesChannelId=sf.salesChannel \n");
+	select.put("","sc.channel");
+	if(salesChannelFilter){
+	where.add("sc.channel="+salesChannelDimension);	
+	}
+	if(this.groupbyList!=null && groupbyList.contains("SalesChannel")){
+		groupBy.add("sf.salesChannel");	
+		}
+}
+if(shippingMethodDimension!=null && !"".equals(shippingMethodDimension)){
+	innerJoin.add("inner join shippingMethod as shipMeth on sf.shippingMethodId=shipMeth.shippingMethodId \n");
+	select.put("","shipMeth.METHOD_NAME");
+if(shippingMethodFilter){
+	where.add("shipMeth.METHOD_NAME="+shippingMethodDimension);	
+	}
+if(this.groupbyList!=null && groupbyList.contains("ShippingMethod")){
+	groupBy.add("sf.shippingMethodId");	
+	}
+}
 		
 		
 		// TODO Auto-generated method stub
-		innerJoin.put("sales",joins );
-		where.put("sales",wheres );
 		
-		select.put("sales",selects );
+
+		
 		
 	}
 
 
-	private void evauluateCustomerDimension(HashMap<String, List<String>> innerJoin, HashMap<String, List<String>> where, HashMap<String, List<String>> select) {
-		ArrayList<String> joins=new ArrayList<>();
-		ArrayList<String> wheres=new  ArrayList<String>();
-		ArrayList<String> selects= new ArrayList<String>();
+	private void evauluateCustomerDimension(ArrayList<String> innerJoin, ArrayList<String> where, HashMap<String, String> select, ArrayList<String> groupBy) {
+		
+boolean individual =false;
+boolean customer =false;
 		// TODO Auto-generated method stub
-		innerJoin.put("customer",joins );
-		where.put("customer",wheres );
+		
+if(customerTypeDimension!=null && !"".equals(customerTypeDimension)){
+		switch (customerTypeDimension) {
+		case "ALL":
+			customer=true;
+			innerJoin.add("inner join customer on customer.customerId=sf.customerId \n");
+			break;
+case "STORE":
+	customer=true;
+	innerJoin.add("inner join customer on customer.customerId=sf.customerId \n");	
+	innerJoin.add("inner join store on store.storeId=customer.customerId   \n");
+	select.put("","store.name");		
+			break;
+case "INDIVIDUAL":
+	individual=true;
+	customer=true;
+	innerJoin.add("inner join customer on customer.customerId=sf.customerId \n");
+	innerJoin.add(" inner join individual on customer.customerId=individual.individualId \n");
 	
-		select.put("customer",selects );
+	
+	break;
+
+		default:
+			break;
+		}
+	if(this.genderDimension!=null && !"".equals(genderDimension)){
+	if(!customer){
+		innerJoin.add("inner join customer on customer.customerId=sf.customerId \n");	
+		customer=true;
+	}	
+	if(!individual){
+	innerJoin.add(" inner join individual on customer.customerId=individual.individualId \n");	
+	individual=true;
+	}
+		
+	}
+if(this.ageGroupDimension!=null && !"".equals(ageGroupDimension)){
+	if(!customer){
+		innerJoin.add("inner join customer on customer.customerId=sf.customerId \n");	
+		customer=true;
+	}	
+	if(!individual){
+	innerJoin.add(" inner join individual on customer.customerId=individual.individualId \n");	
+	individual=true;
+	}
+	
+	innerJoin.add("inner join agegroup on agegroup.ageGroupId=individual.ageGroupId");		
+	
+	}
+if(this.incomeGroupDimension!=null && !"".equals(incomeGroupDimension)){
+	if(!customer){
+		innerJoin.add("inner join customer on customer.customerId=sf.customerId \n");	
+		customer=true;
+	}	
+	if(!individual){
+	innerJoin.add(" inner join individual on customer.customerId=individual.individualId \n");	
+	individual=true;
+	}
+	innerJoin.add("");	
+	
+}
+if(this.homeOwnerDimension!=null && !"".equals(homeOwnerDimension)){
+	if(!customer){
+		innerJoin.add("inner join customer on customer.customerId=sf.customerId \n");	
+		customer=true;
+	}	
+	if(!individual){
+	innerJoin.add(" inner join individual on customer.customerId=individual.individualId \n");	
+	individual=true;
+	}
+			
+}
+
+		
+}
+
+		
 		
 	}
 
 
-	private void evauluatePlaceDimension(HashMap<String, List<String>> innerJoin, HashMap<String, List<String>> where, HashMap<String, List<String>> select) {
-		ArrayList<String> joins=new ArrayList<>();
-		ArrayList<String> wheres=new  ArrayList<String>();
-		ArrayList<String> selects= new ArrayList<String>();
+	private void evauluatePlaceDimension(ArrayList<String> innerJoin, ArrayList<String> where, HashMap<String, String> select, ArrayList<String> groupBy) {
 		
-		if(!"".equals(this.billToDimensionLevel)){
+
+		
+		if(billToDimensionLevel!=null && !"".equals(this.billToDimensionLevel)){
 			switch (billToDimensionLevel) {
 			case "CITY": 
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.SALES_FACT).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.CITY).getTableName());
-			selects.add(QueryConstants.getJOINMAP().get(QueryConstants.CITY).getAlias()+"."+QueryConstants.getJOINMAP().get(QueryConstants.CITY).getFilterAttribute());
+				innerJoin.add(" inner join city as billToCity  on billToCity.CITY_ID=sf.billTo \n");
+				select.put("billTo"," billToCity.NAME");
+				if(groupbyList!=null && groupbyList.contains("BillTo")){
+					groupBy.add("billToCity.CITY_ID");
+				}
+			if(billToFilter!=null && !"".equals(billToFilter) ){
+				where.add("billToCity.NAME='"+billToFilter+"'");}
 				break;
-			case"STATE": 
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.SALES_FACT).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.CITY).getTableName());
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.CITY).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.STATE).getTableName());
-				
-				selects.add(QueryConstants.getJOINMAP().get(QueryConstants.STATE).getAlias()+"."+QueryConstants.getJOINMAP().get(QueryConstants.STATE).getFilterAttribute());
+			case"STATE/PROVINCE": 
+				innerJoin.add(" inner join city as billToCity  on billToCity.CITY_ID=sf.billTo \n");
+				innerJoin.add( " inner join state as billToState on billToCity.stateId=billToState.STATE_ID \n");
+				if(groupbyList!=null && groupbyList.contains("BillTo")){
+					groupBy.add("billToState.STATE_ID");
+				}
+				select.put("billTo","billToState.NAME");
+				if(billToFilter!=null && !"".equals(billToFilter) ){
+					where.add("billToState.NAME='"+billToFilter+"'");}
 				break;
 
 			case "COUNTRY":
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.SALES_FACT).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.CITY).getTableName());
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.CITY).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.STATE).getTableName());
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.STATE).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.COUNTRY).getTableName());
-				
-				selects.add(QueryConstants.getJOINMAP().get(QueryConstants.COUNTRY).getAlias()+"."+QueryConstants.getJOINMAP().get(QueryConstants.COUNTRY).getFilterAttribute());
-				
+				innerJoin.add(" inner join city as billToCity  on billToCity.CITY_ID=sf.billTo \n");
+				innerJoin.add( " inner join state as billToState on billToCity.stateId=billToState.STATE_ID \n");
+				innerJoin.add( " inner join country as billToCountry on billToCountry.COUNTRY_ID=billToState.countryCode \n");
+				if(groupbyList!=null && groupbyList.contains("BillTo")){
+					groupBy.add("billToCountry.COUNTRY_ID");
+				}
+				select.put("billTo","billToCountry.NAME");
+				if(billToFilter!=null && !"".equals(billToFilter) ){
+					where.add("billToCountry.NAME='"+billToFilter+"'");}
 				break; 
 
 			case "TERRITORY":
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.SALES_FACT).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.CITY).getTableName());
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.CITY).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.STATE).getTableName());
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.STATE).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.TERRITORY).getTableName());
-				
-				selects.add(QueryConstants.getJOINMAP().get(QueryConstants.TERRITORY).getAlias()+"."+QueryConstants.getJOINMAP().get(QueryConstants.TERRITORY).getFilterAttribute());
-				
+				innerJoin.add(" inner join city as billToCity  on billToCity.CITY_ID=sf.billTo \n");
+				innerJoin.add( " inner join state as billToState on billToCity.stateId=billToState.STATE_ID \n");
+				innerJoin.add(" inner join territory as billToTerritory on billToTerritory.territoryId=billToState.territoryId \n");
+				if(groupbyList!=null && groupbyList.contains("BillTo")){
+					groupBy.add("billToTerritory.territoryId");
+				}
+				select.put("billTo","billToTerritory.TERRITORY_NAME");
+				if(billToFilter!=null && !"".equals(billToFilter) ){
+					where.add("billToTerritory.TERRITORY_NAME='"+billToFilter+"'");}
 				break; 
 			default:
 				break;
 			}
 			
 		}
-		if(!"".equals(this.orderToDimensionLevel)){
+		if(orderToDimensionLevel!=null && !"".equals(this.orderToDimensionLevel)){
 			switch (orderToDimensionLevel) {
 			case "CITY": 
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.SALES_FACT).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.CITY).getTableName());
-			selects.add(QueryConstants.getJOINMAP().get(QueryConstants.CITY).getAlias()+"."+QueryConstants.getJOINMAP().get(QueryConstants.CITY).getFilterAttribute());
+				innerJoin.add(" inner join city as shipToCity  on shipToCity.CITY_ID=sf.shipTo \n");
+				select.put("shipTo"," shipToCity.NAME");
+				if(groupbyList!=null && groupbyList.contains("ShipTo")){
+					groupBy.add("shipToCity.CITY_ID");
+				}
+			if(shipToFilter!=null && !"".equals(shipToFilter) ){
+				where.add("shipToCity.NAME='"+shipToFilter+"'");}
 				break;
-			case"STATE": 
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.SALES_FACT).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.CITY).getTableName());
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.CITY).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.STATE).getTableName());
-				
-				selects.add(QueryConstants.getJOINMAP().get(QueryConstants.STATE).getAlias()+"."+QueryConstants.getJOINMAP().get(QueryConstants.STATE).getFilterAttribute());
+			case"STATE/PROVINCE": 
+				innerJoin.add(" inner join city as shipToCity  on shipToCity.CITY_ID=sf.shipTo \n");
+				innerJoin.add( " inner join state as shipToState on shipToCity.stateId=shipToState.STATE_ID \n");
+				if(groupbyList!=null && groupbyList.contains("ShipTo")){
+					groupBy.add("shipToState.STATE_ID");
+				}
+				select.put("shipTo","shipToState.NAME");
+				if(shipToFilter!=null && !"".equals(shipToFilter) ){
+					where.add("shipToState.NAME='"+shipToFilter+"'");}
 				break;
 
 			case "COUNTRY":
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.SALES_FACT).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.CITY).getTableName());
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.CITY).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.STATE).getTableName());
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.STATE).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.COUNTRY).getTableName());
-				
-				selects.add(QueryConstants.getJOINMAP().get(QueryConstants.COUNTRY).getAlias()+"."+QueryConstants.getJOINMAP().get(QueryConstants.COUNTRY).getFilterAttribute());
+				innerJoin.add(" inner join city as shipToCity  on shipToCity.CITY_ID=sf.shipTo \n");
+				innerJoin.add( " inner join state as shipToState on shipToCity.stateId=shipToState.STATE_ID \n");
+				innerJoin.add( " inner join country as shipToCountry on shipToCountry.COUNTRY_ID=shipToState.countryCode \n");
+				if(groupbyList!=null && groupbyList.contains("ShipTo")){
+					groupBy.add("shipToCountry.COUNTRY_ID");
+				}
+				select.put("shipTo","shipToCountry.NAME");
+				if(shipToFilter!=null && !"".equals(shipToFilter) ){
+					where.add("shipToCountry.NAME='"+shipToFilter+"'");}
 				
 				break; 
 
 			case "TERRITORY":
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.SALES_FACT).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.CITY).getTableName());
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.CITY).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.STATE).getTableName());
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.STATE).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.TERRITORY).getTableName());
-				
-				selects.add(QueryConstants.getJOINMAP().get(QueryConstants.TERRITORY).getAlias()+"."+QueryConstants.getJOINMAP().get(QueryConstants.TERRITORY).getFilterAttribute());
+				innerJoin.add(" inner join city as shipToCity  on shipToCity.CITY_ID=sf.shipTo \n" );
+				innerJoin.add( " inner join state as shipToState on shipToCity.stateId=shipToState.STATE_ID \n");
+				innerJoin.add(" inner join territory as shipToTerritory on shipToTerritory.territoryId=shipToState.territoryId \n");
+				if(groupbyList!=null && groupbyList.contains("ShipTo")){
+					groupBy.add("shipToTerritory.territoryId");
+				}
+				select.put("shipTo","shipToTerritory.TERRITORY_NAME");
+				if(shipToFilter!=null && !"".equals(shipToFilter) ){
+					where.add("shipToTerritory.NAME='"+shipToFilter+"'");}
 				
 				break; 
 			default:
@@ -282,42 +580,55 @@ public class OlapController implements Serializable{
 			
 		}
 		
-		innerJoin.put("place",joins );
-		where.put("place",wheres );
 		
-		select.put("place",selects );
+		
+		
 	}
 
 
 	
-
+public LinkedHashMap<String, String> buildStaticSelectPart(LinkedHashMap<String, String> map){	
+map.put("discount",this.discountFunction+"("+"sf.discount"+") ");
+map.put("margin",this.marginFunction+"("+"sf.margin"+") ");
+map.put("quantity",this.quantityFunction+"("+"sf.quantity"+") ");
+map.put("productStandartCost",this.standartCostFunction+"("+"sf.productStandartCost"+") ");
+map.put("total",this.totalFunction+"("+"sf.total"+") ");
+map.put("unitPrice",this.unitPriceFunction+"("+"sf.unitPrice"+")");
+map.put("totalCost",this.totalCost+"("+"sf.totalCost"+")");
+return map;
+}
 
 	
-	private void evauluateTimeDimension(HashMap<String, List<String>> innerJoin, HashMap<String, List<String>> where, HashMap<String, List<String>> select) {
-		ArrayList<String> joins=new ArrayList<>();
-		ArrayList<String> wheres=new  ArrayList<String>();
-		ArrayList<String> groupBys= new ArrayList<String>();
-		ArrayList<String> selects= new ArrayList<String>();
-		if(!"".equals(shipDateDimensionLevel)){
+	private void evauluateTimeDimension(ArrayList<String> innerJoin, ArrayList<String> where, HashMap<String, String> select, ArrayList<String> groupBy) {
+
+		if(shipDateDimensionLevel!=null && !"".equals(shipDateDimensionLevel)){
 			switch (shipDateDimensionLevel) {
 			case "DAY": 
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.SALES_FACT).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.DAY).getTableName());
-			selects.add(QueryConstants.getJOINMAP().get(QueryConstants.DAY).getAlias()+"."+QueryConstants.getJOINMAP().get(QueryConstants.DAY).getFilterAttribute());
+				innerJoin.add("inner join day as shipdate on sf.shipdateId=shipdate.dayId \n");
+				select.put("shipDate","shipdate.day");
+				if(groupbyList!=null && groupbyList.contains("ShipDate")){
+				groupBy.add("shipdate.dayId");}
+			if(shipDateFilter!=null && !"".equals(shipDateFilter) ){
+				where.add("shipdate.day='"+shipDateFilter+"'");}
 				break;
 			case"MONTH": 
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.SALES_FACT).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.DAY).getTableName());
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.DAY).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.MONTH).getTableName());
-				
-				selects.add(QueryConstants.getJOINMAP().get(QueryConstants.MONTH).getAlias()+"."+QueryConstants.getJOINMAP().get(QueryConstants.MONTH).getFilterAttribute());
+				innerJoin.add("inner join day as shipdate on sf.shipdateId=shipdate.dayId \n");
+				innerJoin.add("inner join month as shipmonth on shipdate.monthId=shipmonth.monthId \n");
+				if(groupbyList!=null &&groupbyList.contains("ShipDate")){
+				groupBy.add("shipmonth.monthId");}
+				select.put("shipDate","shipmonth.month");
+				if(shipDateFilter!=null && !"".equals(shipDateFilter) ){
+					where.add("shipmonth.month='"+shipDateFilter+"'");}
 				break;
 
 			case "YEAR":
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.SALES_FACT).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.DAY).getTableName());
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.DAY).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.MONTH).getTableName());
-				joins.add(QueryConstants.getJOINMAP().get(QueryConstants.MONTH).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.YEAR).getTableName());
-				
-				selects.add(QueryConstants.getJOINMAP().get(QueryConstants.YEAR).getAlias()+"."+QueryConstants.getJOINMAP().get(QueryConstants.YEAR).getFilterAttribute());
-				
+				innerJoin.add("inner join day as shipdate on sf.shipdateId=shipdate.dayId \n");
+				innerJoin.add("inner join month as shipmonth on shipdate.monthId=shipmonth.monthId \n");			
+				innerJoin.add("inner join year as shipyear on shipyear.yearId=shipmonth.yearId \n");
+				if(groupbyList!=null &&groupbyList.contains("ShipDate")){groupBy.add("shipyear.yearId");}
+				select.put("shipDate","shipyear.year");
+				if(shipDateFilter!=null && !"".equals(shipDateFilter) ){
+				where.add("shipyear.year='"+shipDateFilter+"'");}
 				break; 
 			default:
 				break;
@@ -328,40 +639,41 @@ public class OlapController implements Serializable{
 				
 			}
 		}
-if(!"".equals(orderDateDimensionLevel)){
+if(orderDateDimensionLevel !=null && !"".equals(orderDateDimensionLevel)){
 	switch (orderDateDimensionLevel) {
-	case "DAY":
-		joins.add(QueryConstants.getJOINMAP().get(QueryConstants.SALES_FACT).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.DAY).getTableName());
-		selects.add(QueryConstants.getJOINMAP().get(QueryConstants.DAY).getAlias()+"."+QueryConstants.getJOINMAP().get(QueryConstants.DAY).getFilterAttribute());
-		
+	case "DAY": 
+		innerJoin.add("inner join day as orderdate on sf.orderDateId=orderdate.dayId \n");
+		select.put("orderDate","orderdate.day");
+		if(groupbyList!=null &&groupbyList.contains("OrderDate")){groupBy.add("orderdate.dayId");}
+	if(orderDateFilter!=null && !"".equals(orderDateFilter) ){
+		where.add("orderdate.day='"+orderDateFilter+"'");}
 		break;
 	case"MONTH": 
-		joins.add(QueryConstants.getJOINMAP().get(QueryConstants.SALES_FACT).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.DAY).getTableName());
-		joins.add(QueryConstants.getJOINMAP().get(QueryConstants.DAY).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.MONTH).getTableName());
-		
-		selects.add(QueryConstants.getJOINMAP().get(QueryConstants.MONTH).getAlias()+"."+QueryConstants.getJOINMAP().get(QueryConstants.MONTH).getFilterAttribute());
-		
+		innerJoin.add("inner join day as orderdate on sf.orderDateId=orderdate.dayId \n");
+		innerJoin.add("inner join month as ordermonth on orderdate.monthId=ordermonth.monthId \n");
+		if(groupbyList!=null &&groupbyList.contains("OrderDate")){groupBy.add("ordermonth.monthId");}
+		select.put("orderDate","ordermonth.month");
+		if(orderDateFilter!=null && !"".equals(orderDateFilter) ){
+			where.add("ordermonth.month='"+orderDateFilter+"'");}
 		break;
 
 	case "YEAR":
-		joins.add(QueryConstants.getJOINMAP().get(QueryConstants.SALES_FACT).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.DAY).getTableName());
-		joins.add(QueryConstants.getJOINMAP().get(QueryConstants.DAY).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.MONTH).getTableName());
-		joins.add(QueryConstants.getJOINMAP().get(QueryConstants.MONTH).getTableName()+";"+QueryConstants.getJOINMAP().get(QueryConstants.YEAR).getTableName());
-		
-		selects.add(QueryConstants.getJOINMAP().get(QueryConstants.YEAR).getAlias()+"."+QueryConstants.getJOINMAP().get(QueryConstants.YEAR).getFilterAttribute());
-		
+		innerJoin.add("inner join day as orderdate on sf.orderDateId=orderdate.dayId \n");
+		innerJoin.add("inner join month as ordermonth on orderdate.monthId=ordermonth.monthId \n");			
+		innerJoin.add("inner join year as orderyear on orderyear.yearId=ordermonth.yearId \n");
+		if(groupbyList!=null &&groupbyList.contains("OrderDate")){groupBy.add("orderyear.yearId");}
+		select.put("orderDate","orderyear.year");
+		if(orderDateFilter!=null && !"".equals(orderDateFilter) ){
+			where.add("orderyear.year='"+orderDateFilter+"'");}
 		break; 
 	default:
 		break;
+		
 	}
-			if(orderDateFilter!=null && !"".equals(orderDateFilter)){
-				
-			}
 		}
 
-innerJoin.put("time",joins );
-where.put("time",wheres );
-select.put("time",selects );
+
+
 		
 	}
 
@@ -389,7 +701,7 @@ select.put("time",selects );
 		case "CITY": result=this.dao.getAllCities(query);
 			
 			break;
-case "STATE": result=this.dao.getAllStates(query);
+case "STATE/PROVINCE": result=this.dao.getAllStates(query);
 			
 			break;
 case "COUNTRY": result=this.dao.getAllCountries(query);
@@ -414,7 +726,7 @@ case "TERRITORY":result=this.dao.getAllSalesTerritories(query);
 			case "CITY": result=this.dao.getAllCities(query);
 				
 				break;
-	case "STATE": result=this.dao.getAllStates(query);
+	case "STATE/PROVINCE": result=this.dao.getAllStates(query);
 				
 				break;
 	case "COUNTRY": result=this.dao.getAllCountries(query);
@@ -435,7 +747,8 @@ case "TERRITORY":result=this.dao.getAllSalesTerritories(query);
 	public List<String> completeTextProduct(String query){
 		
 		final String key = productDimensionLevel;
-		List<String> result;
+		List<String> result= new ArrayList<>();
+		if(key!=null){
 		switch (key) {
 		case "PRODUCT": result=this.dao.getAllProducts(query);
 			
@@ -450,7 +763,7 @@ case "CATEGORY": result=this.dao.getAllCategories(query);
 
 		default: result= new ArrayList<String>();
 		
-		}
+		}}
 		return result;
 
 		
@@ -531,7 +844,7 @@ case "TERRITORY":result=this.dao.getAllSalesTerritories(query);
 			}
 		if(!"".equals(salesReasonDimensionLevel)&& "SalesReason".toUpperCase().startsWith(query.toUpperCase())){
 			list.add("SalesReason");	
-			}
+			}			
 			
 		if(!"".equals(customerTypeDimension)&& "CustomerType".toUpperCase().startsWith(query.toUpperCase())){
 			list.add("CustomerType");	
@@ -556,53 +869,59 @@ case "TERRITORY":result=this.dao.getAllSalesTerritories(query);
 	
 	public List<String> completeTextGroupBy(String query){
 		List<String> list= new ArrayList<String>();
-		if(!"".equals(orderDateDimensionLevel) && "OrderDate".toUpperCase().startsWith(query.toUpperCase())){
+		if(orderDateDimensionLevel!=null && !"".equals(orderDateDimensionLevel) && "OrderDate".toUpperCase().startsWith(query.toUpperCase())){
 		list.add("OrderDate");	
 		}
-		if(!"".equals(shipDateDimensionLevel)&& "ShipDate".toUpperCase().startsWith(query.toUpperCase())){
+		if(shipDateDimensionLevel!=null && !"".equals(shipDateDimensionLevel)&& "ShipDate".toUpperCase().startsWith(query.toUpperCase())){
 			list.add("ShipDate");	
 			}
-		if(!"".equals(billToDimensionLevel) && "BillTo".toUpperCase().startsWith(query.toUpperCase())){
+		if(billToDimensionLevel!=null && !"".equals(billToDimensionLevel) && "BillTo".toUpperCase().startsWith(query.toUpperCase())){
 			list.add("BillTo");	
 			}
-		if(!"".equals(orderToDimensionLevel)&& "ShipTo".toUpperCase().startsWith(query.toUpperCase())){
+		if(orderToDimensionLevel!=null && !"".equals(orderToDimensionLevel)&& "ShipTo".toUpperCase().startsWith(query.toUpperCase())){
 			list.add("ShipTo");	
 			}
-		if(!"".equals( productDimensionLevel)&& "Product".toUpperCase().startsWith(query.toUpperCase())){
+		if(productDimensionLevel!=null && !"".equals( productDimensionLevel)&& "Product".toUpperCase().startsWith(query.toUpperCase())){
 			list.add( "Product");	
 			}
-		if(!"".equals( productClassDimension)&& "ProductClass".toUpperCase().startsWith(query.toUpperCase())){
+		if(productClassDimension!=null && !"".equals( productClassDimension)&& "ProductClass".toUpperCase().startsWith(query.toUpperCase())){
 			list.add( "ProductClass");	
 			}
-		if(!"".equals( productStyleDimension)&& "ProductStyle".toUpperCase().startsWith(query.toUpperCase())){
+		if(productStyleDimension!=null && !"".equals( productStyleDimension)&& "ProductStyle".toUpperCase().startsWith(query.toUpperCase())){
 			list.add( "ProductStyle");	
 			}
-		if(!"".equals(productLineDimension)&& "ProductLine".toUpperCase().startsWith(query.toUpperCase())){
+		if(productLineDimension!=null && !"".equals(productLineDimension)&& "ProductLine".toUpperCase().startsWith(query.toUpperCase())){
 			list.add("ProductLine");	
 			}
-		if(!"".equals(makedimension)&& "Make".toUpperCase().startsWith(query)){
+		if(makedimension!=null && !"".equals(makedimension)&& "Make".toUpperCase().startsWith(query)){
 			list.add("Make");	
 			}
-		if(!"".equals(salesReasonDimensionLevel)&& "SalesReason".toUpperCase().startsWith(query.toUpperCase())){
+		if(salesReasonDimensionLevel!=null && !"".equals(salesReasonDimensionLevel)&& "SalesReason".toUpperCase().startsWith(query.toUpperCase())){
 			list.add("SalesReason");	
 			}
-			
-		if(!"".equals(customerTypeDimension)&& "CustomerType".toUpperCase().startsWith(query.toUpperCase())){
+		if(salesChannelDimension!=null && !"".equals(salesChannelDimension) && "SalesChannel".toUpperCase().startsWith(query.toUpperCase())){
+		list.add("SalesChannel");	
+		}	
+		if(shippingMethodDimension!=null && !"".equals(shippingMethodDimension) && "ShippingMethod".toUpperCase().startsWith(query.toUpperCase())){
+			list.add("ShippingMethod");	
+			}
+		
+		if(customerTypeDimension!=null && !"".equals(customerTypeDimension)&& "CustomerType".toUpperCase().startsWith(query.toUpperCase())){
 			list.add("CustomerType");	
 			}
-		if(!"".equals(customerRegionDimension)&& "CustomerRegion".toUpperCase().startsWith(query.toUpperCase())){
+		if(customerRegionDimension!=null && !"".equals(customerRegionDimension)&& "CustomerRegion".toUpperCase().startsWith(query.toUpperCase())){
 			list.add("CustomerRegion");	
 			}
-		if(!"".equals(customerGenderDimension)&& "CustomerGender".toUpperCase().startsWith(query.toUpperCase())){
+		if(customerGenderDimension!=null && !"".equals(customerGenderDimension)&& "CustomerGender".toUpperCase().startsWith(query.toUpperCase())){
 			list.add("CustomerGender");	
 			}
-		if(!"".equals(customerAgeGroupDimension)&& "CustomerAgeGroup".toUpperCase().startsWith(query.toUpperCase())){
+		if(customerAgeGroupDimension!=null && !"".equals(customerAgeGroupDimension)&& "CustomerAgeGroup".toUpperCase().startsWith(query.toUpperCase())){
 			list.add("CustomerAgeGroup");	
 			}
-		if(!"".equals(customerYearlyIncomeGroupDimension)&& "CustomerYearlyIncomeGroup".toUpperCase().startsWith(query.toUpperCase())){
+		if(customerYearlyIncomeGroupDimension!=null && !"".equals(customerYearlyIncomeGroupDimension)&& "CustomerYearlyIncomeGroup".toUpperCase().startsWith(query.toUpperCase())){
 			list.add("CustomerYearlyIncomeGroup");	
 			}
-		if(!"".equals(customerHomeOwnerDimension)&& "CustomerHomeOwner".toUpperCase().startsWith(query.toUpperCase())){
+		if(customerHomeOwnerDimension!=null && !"".equals(customerHomeOwnerDimension)&& "CustomerHomeOwner".toUpperCase().startsWith(query.toUpperCase())){
 				list.add("CustomerHomeOwner");	
 				}
 		return list;
@@ -618,44 +937,40 @@ case "TERRITORY":result=this.dao.getAllSalesTerritories(query);
 	
 	
 	public void buildAndExecuteQuery(){
-		HashMap<String, HashMap<String, List<String>>> map =evaluateDimensions();	
-		ArrayList<String> columnOrder= new ArrayList<>();
-	String olapQuery = this.builder.assembleOlapQuery(map, columnOrder);
+		QueryComponentsObject obj =evaluateDimensions();	
+	String olapQuery = this.builder.assembleOlapQuery(obj);
 log.info(olapQuery);
-//	if(builder.isSingleColumnResult()){
+//	if(obj.getSelect.keySet().size()==1){
 //dao.executeOlapQuerySingleColumn(olapQuery);		
 //	}else{
-//List<DataTableObject> tableObject = this.createDatatableObject(columnOrder,dao.executeOlapQueryMulticolumns(olapQuery));		
-//	this.columnManagerView.setTableObjects(tableObject);
+List<DataTableObject> tableObject = this.createDatatableObject(obj.getSelect(),dao.executeOlapQueryMulticolumns(olapQuery));		
+	this.columnManagerView.setTableObjects(tableObject);
 	//}
 		
 	}
 	
 	
-	private List<DataTableObject> createDatatableObject(ArrayList<String> columnOrder, List<Object[]> executeOlapQueryMulticolumns) {
+	private List<DataTableObject> createDatatableObject(LinkedHashMap<String, String> columnOrder, List<Object[]> executeOlapQueryMulticolumns) {
 	ArrayList<DataTableObject> list = new ArrayList<>();
-	for(Object[] arr: executeOlapQueryMulticolumns){
-	DataTableObject object = new DataTableObject();
-		for(int i=0; i<arr.length;i++){
-		final String attrubiteName= columnOrder.get(i);
-		switch (attrubiteName) {
-		case "":
-			
-			break;
-
-		default:
-			break;
+	Object[] colarr = columnOrder.keySet().toArray();
+	for(Object[] oarr :executeOlapQueryMulticolumns){
+	DataTableObject dtobject = new DataTableObject();
+		for(int i=0;i<colarr.length;i++){
+		dtobject.getMap().put((String)colarr[i], oarr[i]);	
 		}
-	}	
+		list.add(dtobject);
 	}
-		return null;
+
+		return list;
 	}
 
 
 	public void resetPlaceDimension(){
 		billToDimensionLevel="";
 		 orderToDimensionLevel="";	
-		 placeFilter="";
+		 shipToFilter="";
+		 billToFilter="";
+		 this.groupbyList.clear();
 	}
 	
 	public void resetTimeDimension(){
@@ -663,12 +978,45 @@ log.info(olapQuery);
 		this.shipDateDimensionLevel="";
 		this.orderDateFilter="";
 		this.shipDateFilter="";
-		
+		this.groupbyList.clear();
 	}
 	
 	
 	
+	public void resetProductDimension(){
+	this.productDimensionLevel="";
+	this.productFilter="";
+	this.groupbyList.clear();
+	this.productClassDimension="";
+	this.productClassFilter=false;
+	this.productLineDimension="";
+	this.productLineFilter=false;
+	this.productStyleDimension="";
+	this.productStyleFilter=false;
+	}
 	
+	public void resetSalesDimension(){
+	salesReasonDimensionLevel="";
+	salesReasonFilter="";
+	salesPersonFilter="";
+	salesChannelDimension="";
+	shippingMethodDimension="";
+	shippingMethodFilter=false;
+	salesChannelFilter=false;
+	}
+	
+	public void resetCustomerDimension(){
+	customerTypeDimension="";
+	customerGenderDimension="";
+	genderFilter=false;
+	ageGroupDimension="";
+	ageGroupFilter=false;
+	yearlyIncomeFilter=false;
+	customerYearlyIncomeGroupDimension="";
+	homeOwnerFilter=false;
+	homeOwnerDimension="";
+	
+	}
 	
 	
 	public String getQuantityFunction() {
@@ -683,12 +1031,7 @@ log.info(olapQuery);
 	public void setUnitPriceFunction(String unitPriceFunction) {
 		this.unitPriceFunction = unitPriceFunction;
 	}
-	public String getTaxAmtFunction() {
-		return taxAmtFunction;
-	}
-	public void setTaxAmtFunction(String taxAmtFunction) {
-		this.taxAmtFunction = taxAmtFunction;
-	}
+
 	public String getDiscountFunction() {
 		return discountFunction;
 	}
@@ -781,17 +1124,17 @@ log.info(olapQuery);
 	public String getOrderDateMask() {
 	if(this.orderDateDimensionLevel!=null && !"".equals(this.orderDateDimensionLevel)){
 	switch (this.orderDateDimensionLevel) {
-	case "DAY": orderDateMask="99-99-9999";
+	case "DAY": orderDateMask="9999-99-99";
 		
 		break;
-case "MONTH": orderDateMask="99-9999";
+case "MONTH": orderDateMask="9999-99";
 		
 		break;
 case "YEAR": orderDateMask="9999";
 	
 	break;
 
-	default:  orderDateMask="99-99-9999";
+	default:  orderDateMask="9999-99-99";
 		break;
 	}
 	return orderDateMask;
@@ -829,12 +1172,7 @@ case "YEAR": orderDateMask="9999";
 	
 	public void test(){}
 
-	public String getPlaceFilter() {
-		return placeFilter;
-	}
-	public void setPlaceFilter(String placeFilter) {
-		this.placeFilter = placeFilter;
-	}
+
 
 
 
@@ -1239,6 +1577,94 @@ case "YEAR": orderDateMask="9999";
 
 	public void setMakeFilter(boolean makeFilter) {
 		this.makeFilter = makeFilter;
+	}
+
+
+
+	public String getShipToFilter() {
+		return shipToFilter;
+	}
+
+
+
+	public void setShipToFilter(String shipToFilter) {
+		this.shipToFilter = shipToFilter;
+	}
+
+
+
+	public String getBillToFilter() {
+		return billToFilter;
+	}
+
+
+
+	public void setBillToFilter(String billToFilter) {
+		this.billToFilter = billToFilter;
+	}
+
+
+
+	public String getSalesChannelDimension() {
+		return salesChannelDimension;
+	}
+
+
+
+	public void setSalesChannelDimension(String salesChannelDimension) {
+		this.salesChannelDimension = salesChannelDimension;
+	}
+
+
+
+	public String getShippingMethodDimension() {
+		return shippingMethodDimension;
+	}
+
+
+
+	public void setShippingMethodDimension(String shippingMethodDimension) {
+		this.shippingMethodDimension = shippingMethodDimension;
+	}
+
+
+	public String getGenderDimension() {
+		return genderDimension;
+	}
+
+
+	public void setGenderDimension(String genderDimension) {
+		this.genderDimension = genderDimension;
+	}
+
+
+	public String getAgeGroupDimension() {
+		return ageGroupDimension;
+	}
+
+
+	public void setAgeGroupDimension(String ageGroupDimension) {
+		this.ageGroupDimension = ageGroupDimension;
+	}
+
+
+	public String getIncomeGroupDimension() {
+		return incomeGroupDimension;
+	}
+
+
+	public void setIncomeGroupDimension(String incomeGroupDimension) {
+		this.incomeGroupDimension = incomeGroupDimension;
+	}
+
+
+	public String getHomeOwnerDimension() {
+		return homeOwnerDimension;
+	}
+
+
+	public void setHomeOwnerDimension(String homeOwnerDimension) {
+		this.homeOwnerDimension = homeOwnerDimension;
 	}
 
 

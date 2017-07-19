@@ -27,7 +27,7 @@ public class Individual {
 	
 	
 	
-	private  double yearlyIncome;	
+	private  String yearlyIncomeGroupCode;	
 
 	private String gender;
 
@@ -75,12 +75,12 @@ public class Individual {
 
 
 
-	public double getYearlyIncome() {
-		return yearlyIncome;
+	public String getYearlyIncome() {
+		return yearlyIncomeGroupCode;
 	}
 
-	public void setYearlyIncome(double yearlyIncome) {
-		this.yearlyIncome = yearlyIncome;
+	public void setYearlyIncome(String yearlyIncome) {
+		this.yearlyIncomeGroupCode = yearlyIncome;
 	}
 
 	public String getGender() {
@@ -133,14 +133,14 @@ public class Individual {
 	}
 
 	public Individual(String firstName, String lastName, String dateFirstPurchase, String birthDate,
-			 double yearlyIncome, String gender, int totalChildren, int numberChildrenAtHome,
+			String yearlyIncome, String gender, int totalChildren, int numberChildrenAtHome,
 			 String homeOwnerFlag, int numberCarsOwned, String commuteDistance) {
 		super();
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.dateFirstPurchase = dateFirstPurchase;
 	
-		this.yearlyIncome = yearlyIncome;
+		this.yearlyIncomeGroupCode = yearlyIncome;
 		this.gender = gender;
 		this.totalChildren = totalChildren;
 		this.numberChildrenAtHome = numberChildrenAtHome;

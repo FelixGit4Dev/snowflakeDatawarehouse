@@ -43,6 +43,7 @@ public class Product implements Serializable{
 		private Timestamp toDate;
 		@Column(nullable=false)
 		private Timestamp modfiedDate;
+		private Double standartCost;
 	public Product(long subcategoryId, String name, String makeFlag, String productLine, String klasse, String style,
 			Timestamp fromDate, Timestamp toDate) {
 		super();
@@ -119,6 +120,12 @@ public class Product implements Serializable{
 		}
 		public void setModfiedDate(Timestamp modfiedDate) {
 			this.modfiedDate = modfiedDate;
+		}
+		public Double getStandartCost() {
+			return standartCost;
+		}
+		public void setStandartCost(Double standartCost) {
+			this.standartCost = standartCost;
 		}
 		
 		

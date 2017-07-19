@@ -13,7 +13,7 @@ import javax.persistence.SqlResultSetMapping;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="SALES_FACT")
+@Table(name="SALES_FACT",indexes = {@Index(columnList="orderDateId"), @Index(columnList="customerId")})
 //@SqlResultSetMapping(name="SalesFactMapping",
 //classes = {
 // @ConstructorResult(targetClass = SalesFact.class,
@@ -55,8 +55,6 @@ private	long saleFactId;
 	
 private	 long shippingMethodId;
 
-private	long billToStateProvinceId;
-
 private	long salesReasonId;
 
 private	long productId;
@@ -77,22 +75,23 @@ private long shipTo;
 //Kennzahlen
 private int quantity;
 private double unitPrice;
-private double taxAmt;
+
 private double discount;
 private double total;
 private double productStandartCost;
+private double totalCost;
+private double margin;
 
 
 
 
 
 
-public SalesFact(long shippingMethodId, long billToStateProvinceId, long salesReasonId, long productId,
+public SalesFact(long shippingMethodId,  long salesReasonId, long productId,
 		 long orderDateId, long dueDateId, long shipdateId, long customerId, long salesPersonId,
-		int quantity, double unitPrice, double taxAmt, double discount, double total, double productStandartCost, long billTo, long shipTo) {
+		int quantity, double unitPrice,  double discount, double total, double productStandartCost, long billTo, long shipTo) {
 	super();
 	this.shippingMethodId = shippingMethodId;
-	this.billToStateProvinceId = billToStateProvinceId;
 	this.salesReasonId = salesReasonId;
 	this.productId = productId;
 	this.orderDateId = orderDateId;
@@ -101,7 +100,7 @@ public SalesFact(long shippingMethodId, long billToStateProvinceId, long salesRe
 	this.salesPersonId = salesPersonId;
 	this.quantity = quantity;
 	this.unitPrice = unitPrice;
-	this.taxAmt = taxAmt;
+
 	this.discount = discount;
 	this.total = total;
 	this.productStandartCost = productStandartCost;
@@ -130,12 +129,7 @@ public long getShippingMethodId() {
 public void setShippingMethodId(long shippingMethodId) {
 	this.shippingMethodId = shippingMethodId;
 }
-public long getBillToStateProvinceId() {
-	return billToStateProvinceId;
-}
-public void setBillToStateProvinceId(long billToAdressId) {
-	this.billToStateProvinceId = billToAdressId;
-}
+
 public long getSalesReasonId() {
 	return salesReasonId;
 }
@@ -180,12 +174,7 @@ public double getUnitPrice() {
 public void setUnitPrice(double unitPrice) {
 	this.unitPrice = unitPrice;
 }
-public double getTaxAmt() {
-	return taxAmt;
-}
-public void setTaxAmt(double taxAmt) {
-	this.taxAmt = taxAmt;
-}
+
 public double getDiscount() {
 	return discount;
 }
@@ -251,6 +240,42 @@ public long getShipTo() {
 
 public void setShipTo(long shipTo) {
 	this.shipTo = shipTo;
+}
+
+
+
+
+
+
+public double getMargin() {
+	return margin;
+}
+
+
+
+
+
+
+public void setMargin(double margin) {
+	this.margin = margin;
+}
+
+
+
+
+
+
+public double getTotalCost() {
+	return totalCost;
+}
+
+
+
+
+
+
+public void setTotalCost(double totalCost) {
+	this.totalCost = totalCost;
 }
 
 }

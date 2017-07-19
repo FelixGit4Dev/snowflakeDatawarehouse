@@ -6,6 +6,7 @@ public class QueryPartObject {
 	private  String tableName;
 	private String alias;
 	private String joinAttribute;
+	private String primarykeyAttribute;
 	private String filterAttribute;
 	public String getTableName() {
 		return tableName;
@@ -25,11 +26,13 @@ public class QueryPartObject {
 	public void setJoinAttribute(String joinAttribute) {
 		this.joinAttribute = joinAttribute;
 	}
-	public QueryPartObject(String tableName, String alias, String joinAttribute) {
+	public QueryPartObject(String tableName, String alias, String joinAttribute, String filterAttribute,String primary) {
 		super();
 		this.tableName = tableName;
 		this.alias = alias;
 		this.joinAttribute = joinAttribute;
+		this.filterAttribute=filterAttribute;
+		this.primarykeyAttribute=primary;
 	}
 	public QueryPartObject() {
 		super();
@@ -40,6 +43,12 @@ public class QueryPartObject {
 	}
 	public void setFilterAttribute(String filterAttribute) {
 		this.filterAttribute = filterAttribute;
+	}
+	public String getPrimarykeyAttribute() {
+		return primarykeyAttribute;
+	}
+	public void setPrimarykeyAttribute(String primarykeyAttribute) {
+		this.primarykeyAttribute = primarykeyAttribute;
 	}
 	
 }

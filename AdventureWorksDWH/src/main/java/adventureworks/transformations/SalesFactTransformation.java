@@ -79,8 +79,8 @@ public class SalesFactTransformation implements Transformation{
 	            	fact.setQuantity(detail.getOrderQty());
 	            	fact.setUnitPrice(detail.getUnitPrice());
 	            	fact.setDiscount(0.0); // inner join product specialofferPRoduct and specialoffer where product id 
-	            	fact.setTaxAmt(0.0);
-	            	fact.setTotal(detail.getOrderQty()*detail.getUnitPrice()-fact.getDiscount()+fact.getTaxAmt());
+	           
+	            	fact.setTotal(detail.getOrderQty()*detail.getUnitPrice()-fact.getDiscount());
 	            	factList.add(fact);	
 	            	}
 	            	offsetdetails=list.size();
@@ -94,8 +94,8 @@ public class SalesFactTransformation implements Transformation{
 		
 	}
 
-	public void update() {
-		
+	public HashMap<String, Long> update() {
+		return new HashMap<String,Long>();
 		
 	}
 	
@@ -105,9 +105,12 @@ public class SalesFactTransformation implements Transformation{
 		
 	}
 
-	public void initDimension() {
+	public HashMap<String, Long> initDimension() {
+		HashMap<String, Long> mapCount= new HashMap<>();
+		Long factCount=0L;
 		 int offset = 0;
 			log.info("Started transfer to Staging Table: "+ new Date());
+			long salesReasonId= targetDao.getOtherSalesReason().getSalesReasonId();
 	        List<StagingTable> salesHeaders;
 	        while ((salesHeaders = sourceDao.getJoinedSalesOrderAndHeaders(offset, Constants.RESULTSETSIZE)).size() > 0)
 	        {
@@ -140,13 +143,23 @@ public class SalesFactTransformation implements Transformation{
         log.info("Started retrieving shippingMethod Ids: Time: "+new Date());
         	ArrayList<Object[]> v6 = (ArrayList<Object[]>) targetDao.getShippingMethodIdForSalesFact(offset, Constants.RESULTSETSIZE);
         	
+        	ArrayList<Object[]> v7= (ArrayList<Object[]>) targetDao.getTaxrateAndSpecialOffer(offset, Constants.RESULTSETSIZE);
         	SalesFact fact;
         	for(int i =0; i<list.size();i++){
       		Object[] arr;     		
       		arr= v1.get(i); 
       		fact =map.get((BigInteger)arr[0]);
       				 fact.setProductId(((BigInteger)arr[1]).longValue());
-      		 fact.setSalesPersonId(arr[2]==null? 0 :((BigInteger)arr[2]).longValue());
+      		 fact.setSalesPersonId(arr[2]==null? salesReasonId :((BigInteger)arr[2]).longValue());
+      		 fact.setQuantity((Integer) arr[3]);
+      		 fact.setUnitPrice((Double)arr[4]);
+      		 fact.setProductStandartCost((Double)arr[5]);
+     arr = v7.get(i);
+     fact =map.get((BigInteger)arr[0]);
+     fact.setDiscount(fact.getQuantity()*fact.getUnitPrice()*((Double)arr[1]));  
+      		 fact.setTotal((fact.getQuantity()*fact.getUnitPrice()-fact.getDiscount()));
+      		 fact.setTotalCost(fact.getQuantity()*fact.getProductStandartCost());
+      		 fact.setMargin(fact.getTotal()-fact.getTotalCost());
       		arr= v2.get(i);
       		fact =map.get((BigInteger)arr[0]);
       		fact.setBillTo(((BigInteger)arr[1]).longValue());
@@ -164,13 +177,16 @@ public class SalesFactTransformation implements Transformation{
       		fact.setShippingMethodId(((BigInteger)arr[1]).longValue());
         	}
         		
-       		log.info("Started persisting Block of SalesFacts");	
+       		log.info("Started persisting Block of SalesFacts");
+       		factCount= factCount+list.size();
         this.targetDao.persistMapOfEntities(map);
         log.info("Finished persisting Block of SalesFacts");	
       	  offset += list.size();	
       	  map.clear();
 	        }	 
 //	        this.targetDao.clearStagingTable();
+        mapCount.put("Fact", factCount);
+        return mapCount;
 	        }
 	
 	

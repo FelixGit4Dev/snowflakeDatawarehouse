@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -33,7 +34,11 @@ private DwhSourceAccess SourceDao;
 	
 	
 	
-public void initDimension(){
+public HashMap<String, Long> initDimension(){
+	HashMap<String, Long> mapCount= new HashMap<>();
+	Long dayCounter=0L;
+	Long monthCounter=0L;
+	Long yearCounter=0L;
 //Timestamp earliestDate= SourceDao.getEarliestDate();	
 DateTimeFormatter formatterYear = DateTimeFormatter.ofPattern("yyyy");
 DateTimeFormatter formatterMonth = DateTimeFormatter.ofPattern("yyyy-MM");
@@ -57,6 +62,7 @@ for(LocalDate date : totalDates){
 	year.setModfiedDate(now );
 	
 	year= (Year) this.targetDao.persistObject(year);
+	yearCounter++;
 	
 	//System.out.println(date.format(formatterYear));
 	while (!firstDay.isAfter(lastDay)) {
@@ -64,6 +70,7 @@ for(LocalDate date : totalDates){
 		 now= new Timestamp(System.currentTimeMillis());
 		 m.setModfiedDate(now);
 		 m = this.targetDao.persistMonth(m);
+		 monthCounter++;
 		 // System.out.println(firstDay.format(formatterMonth));
 		  firstDay = firstDay.plusMonths(1);	 
 		  LocalDate firstDayMonth = firstDay.with(firstDayOfMonth()); // 2015-01-01
@@ -74,15 +81,20 @@ for(LocalDate date : totalDates){
 			 now= new Timestamp(System.currentTimeMillis());
 			 d.setModfiedDate(now);
 			this.targetDao.persistDay(d);
+			dayCounter++;
 			 // System.out.println(firstDayMonth.format(formatterDay));
 			  firstDayMonth = firstDayMonth.plusDays(1);
 			}	  
 		}
 	}
+mapCount.put("Day", dayCounter);
+mapCount.put("Month", monthCounter);
+mapCount.put("Year", yearCounter);
+return mapCount;
 }	
 	
 	
-public void update(){
+public HashMap<String,Long> update(){
 	Timestamp latetsDateinDwh =this.targetDao.getLatestEtlMeta().getEtlJobRun_Date();
 	LocalDate latest= latetsDateinDwh.toLocalDateTime().toLocalDate();
 	LocalDate now = LocalDate.now();	
@@ -92,6 +104,7 @@ public void update(){
 		
 		//TODO
 	}
+	return new HashMap<>();
 }	
 	
 	

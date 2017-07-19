@@ -3,6 +3,7 @@ package adventureworks.transformations;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -38,10 +39,18 @@ public class ProductTransformation implements Transformation{
 private DwhSourceAccess sourceDao;
 @Inject
 private DwhTargetAcess targetDao;
+private Long categoryCount;
+private Long subcategoryCount;
+private Long productCount;
 
-	public void initDimension() {
+
+	public HashMap<String, Long> initDimension() {
+		HashMap<String, Long> mapCount= new HashMap<>();
+		categoryCount = 0L;
+		subcategoryCount = 0L;
+		productCount = 0L;
 		Timestamp startFrom = new Timestamp(0);
-		initProductLineClassStyle();
+		initProductLineClassStyle(mapCount);
 		   int offset = 0;
 
 	        List<Productcategory> salesHeaders;
@@ -54,7 +63,7 @@ private DwhTargetAcess targetDao;
 	            Timestamp now =new Timestamp(System.currentTimeMillis());
 	            category.setModfiedDate(now);
 	            category= this.targetDao.persistCategory(category);
-	         
+	         categoryCount++;
 	            Category_MAP map= new Category_MAP(salesHeader.getProductCategoryID(),category.getCategoryId(),now,startFrom,null);
 	           createSubcategory(category.getCategoryId());
 	            this.targetDao.persistCategory_MAP(map);
@@ -63,11 +72,17 @@ private DwhTargetAcess targetDao;
 	            offset += salesHeaders.size();
 	        }
 	        createUndefined();
+	        mapCount.put("Product", productCount );
+	        mapCount.put("Category", categoryCount );
+	        mapCount.put("Subcategory", subcategoryCount );
+	    
+	        return mapCount;
 		
+	        
 	}
 	
 	
-	private void initProductLineClassStyle() {
+	private void initProductLineClassStyle(HashMap<String, Long> mapCount) {
 	    Timestamp now =new Timestamp(System.currentTimeMillis());
 		List<Object> topersist = new ArrayList<Object>();
 		ProductLine line = new ProductLine("R", "Cityrad");
@@ -121,12 +136,18 @@ private DwhTargetAcess targetDao;
 		flag.setModfiedDate(now);
 		topersist.add(flag);
 		targetDao.persistListOfEntities(topersist);
+		
+	    mapCount.put("ProductLine", 5L );
+        mapCount.put("ProductStyle", 4L );
+        mapCount.put("ProductClass", 4L );
+        mapCount.put("MakeFlag", 2L );
+        
 	}
 
 
 	public void createSubcategory(long id){
 		int offset = 0;
-
+Timestamp inital= new Timestamp(0);
         List<Productsubcategory> salesHeaders;
         while ((salesHeaders = sourceDao.getSubcategoriesByCategoryId(id,offset, Constants.RESULTSETSIZE)).size() > 0)
         {
@@ -138,7 +159,9 @@ private DwhTargetAcess targetDao;
           subcategory.setCategoryId(id);
           Timestamp now =new Timestamp(System.currentTimeMillis());
           subcategory.setModfiedDate(now);
+          subcategory.setFromDate(inital);
         targetDao.persistSubcategory(subcategory);
+        subcategoryCount++;
         
         Subcategory_MAP map= new Subcategory_MAP(salesHeader.getProductSubcategoryID(),subcategory.getSubcategoryId(),now,new Timestamp(0),null);
         targetDao.persistObject(map);    	
@@ -150,7 +173,7 @@ private DwhTargetAcess targetDao;
 	}
 	
 	public void createProduct(long id){
-	
+	Timestamp init= new Timestamp(0);
 		int offset = 0;
 
         List<adventureworks.entitySource.Product> salesHeaders;
@@ -161,14 +184,17 @@ private DwhTargetAcess targetDao;
             {
           Product product = new Product();
           product.setSubcategoryId(id);
-          product.setStyle(salesHeader.getStyle());
-          product.setProductLine(salesHeader.getProductLine());
+          product.setStyle(salesHeader.getStyle()==null?"UD":salesHeader.getStyle());
+          product.setProductLine(salesHeader.getProductLine()==null?"UD":salesHeader.getProductLine());
           product.setName(salesHeader.getName());
           product.setMakeFlag(((salesHeader.getMakeFlag()==1)?"M":"B"));
-          product.setKlasse(salesHeader.getClass_());
+          product.setKlasse(salesHeader.getClass_()==null?"UD":salesHeader.getClass_());
         Timestamp now =new Timestamp(System.currentTimeMillis());
           product.setModfiedDate(now);
+          product.setFromDate(init);
+          product.setStandartCost(salesHeader.getStandardCost());
           targetDao.persistObject(product);
+          productCount++;
           Product_MAP map= new Product_MAP(((long)salesHeader.getProductID()),product.getProductId(),now,new Timestamp(0), null);
           map.setModifiedDate(now);
           targetDao.persistObject(map);
@@ -182,6 +208,7 @@ private DwhTargetAcess targetDao;
 	
 	
 	public void createUndefined(){
+		Timestamp init= new Timestamp(0);
 		Timestamp now =new Timestamp(System.currentTimeMillis());
 		Category category = new Category(new Timestamp(0), null, "Other");	
 		 category.setModfiedDate(now);
@@ -190,6 +217,7 @@ private DwhTargetAcess targetDao;
 		 subcategory.setName("Other");
 		 subcategory.setModfiedDate(now);
 		 subcategory.setCategoryId(category.getCategoryId());
+		 subcategory.setFromDate(init);
 		 targetDao.persistObject(subcategory);
 		 int offset = 0;
 		    List<adventureworks.entitySource.Product> salesHeaders;
@@ -198,11 +226,13 @@ private DwhTargetAcess targetDao;
 		 for(adventureworks.entitySource.Product p: salesHeaders){
 			 Product product = new Product();
 	          product.setSubcategoryId(subcategory.getSubcategoryId());
-	          product.setStyle(p.getStyle());
-	          product.setProductLine(p.getProductLine());
+	          product.setStyle(p.getStyle()==null?"ID":p.getStyle());
+	          product.setProductLine(p.getProductLine()==null?"UD":p.getProductLine());
 	          product.setName(p.getName());
 	          product.setMakeFlag(((p.getMakeFlag()==1)?"M":"B"));
-	          product.setKlasse(p.getClass_());
+	          product.setKlasse(p.getClass_()==null?"UD":p.getClass_());
+	          product.setStandartCost(p.getStandardCost());
+	          product.setFromDate(init);
 	      now =new Timestamp(System.currentTimeMillis());
 	          product.setModfiedDate(now);	
 	          targetDao.persistObject(product);
@@ -214,8 +244,11 @@ private DwhTargetAcess targetDao;
 	        }
 	}
 
-	public void update() {
-		
+	public HashMap<String, Long> update() {
+		categoryCount = 0L;
+		subcategoryCount = 0L;
+		productCount = 0L;
+		return new HashMap<>();
 		
 	}
 

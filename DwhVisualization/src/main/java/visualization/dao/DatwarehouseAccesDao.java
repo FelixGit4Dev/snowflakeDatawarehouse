@@ -21,9 +21,11 @@ import javax.persistence.criteria.Root;
 import org.apache.log4j.Logger;
 
 
+import visualization.controller.OlapController;
 import visualization.entity.entityDwh.Category;
 import visualization.entity.entityDwh.City;
 import visualization.entity.entityDwh.Country;
+import visualization.entity.entityDwh.EtlMetaInformation;
 import visualization.entity.entityDwh.Product;
 import visualization.entity.entityDwh.SalesPerson;
 import visualization.entity.entityDwh.SalesReason;
@@ -46,6 +48,10 @@ public class DatwarehouseAccesDao implements Serializable{
 	
 	@Inject
 	private transient Logger log; 
+	
+	@Inject 
+	private OlapController olapController;
+	
 	
 public List<Object[]> executeOlapQueryMulticolumns(String queryString ){
 Query query =entityManager.createNativeQuery(queryString);	
@@ -76,9 +82,18 @@ public List<Object[]> executeNativeQueryMulticolumns(String queryString ){
 Query query =entityManager.createNativeQuery(queryString);	
 List<Object[]> result=query.getResultList();
 return result;}
-catch (Exception e) {
-	return new ArrayList<Object[]>();	
-	}
+	catch (IllegalStateException e) {
+		olapController.setErrorMessage("Stop that you little shit");
+		return new ArrayList<Object[]>();	
+		}
+	catch (TransactionRequiredException e) {
+		olapController.setErrorMessage("You can not insert,delete or update via this input");
+		return new ArrayList<Object[]>();	
+		}
+	catch (Exception e) {
+		olapController.setErrorMessage("your query seems to be defective");
+		return new ArrayList<Object[]>();	
+		}
 
 }	
 	
@@ -88,12 +103,15 @@ Query query =entityManager.createNativeQuery(queryString);
 List<Object> result=query.getResultList();
 return result;}
 	catch (IllegalStateException e) {
+		olapController.setErrorMessage("Stop that you little shit");
 	return new ArrayList<Object>();	
 	}
 	catch (TransactionRequiredException e) {
+		olapController.setErrorMessage("You can not insert,delete or update via this input");
 		return new ArrayList<Object>();	
 		}
 	catch (Exception e) {
+		olapController.setErrorMessage("your query seems to be defective");
 		return new ArrayList<Object>();	
 		}
 	
@@ -209,6 +227,17 @@ public List<String> getAllSalesPersons(String startWith){
 	List<SalesPerson> item = q.getResultList();
 	List<String> list =item.stream().map(SalesPerson::getSalesPersonId).map(Object::toString).collect(Collectors.toList());
 	return 	list;
+}
+
+
+public List<EtlMetaInformation> getAllEtlMetaInformation(){
+	CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+	CriteriaQuery<EtlMetaInformation> cq = cb.createQuery(EtlMetaInformation.class);
+	Root<EtlMetaInformation> from = cq.from(EtlMetaInformation.class);
+	cq.select(from).orderBy(cb.asc(from.get("etlJobRun_Date")));
+	TypedQuery<EtlMetaInformation> q = entityManager.createQuery(cq);
+	List<EtlMetaInformation> item = q.getResultList();
+	return item;	
 }
 
 	

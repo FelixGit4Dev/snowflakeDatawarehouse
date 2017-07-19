@@ -4,10 +4,12 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -77,6 +79,7 @@ private long maxIndividualId;
 		YearlyIncomeGroup middel= new YearlyIncomeGroup("M",now,"25001-50000");
 		YearlyIncomeGroup high= new YearlyIncomeGroup("H",now,"50001-75000");
 		YearlyIncomeGroup veryHigh= new YearlyIncomeGroup("VH",now,"75001-100000");
+
 		//HomeOwner
 	HomeOwner yes =new HomeOwner("YES", now);
 	HomeOwner no =new HomeOwner("NO", now);
@@ -151,41 +154,60 @@ private long maxIndividualId;
 }
 
 	
-	public void initDimension(){
+	public HashMap<String, Long> initDimension(){
+	HashMap<String, Long> map= new HashMap<>();	
+	Long customerCount=0L;
+	Long storeCount=0L;
+	Long individualCount=0L;
 		   Timestamp now=new Timestamp(System.currentTimeMillis());
 		   List<Object> topersist= new ArrayList<Object>();
 		//Gender
 		Gender gender= new Gender("M",now,"MAENNLICH");
-		topersist.add(gender);
+		targetDao.persistObject(gender);
 		gender= new Gender("W",now,"WEIBLICH");
-		topersist.add(gender);
+		targetDao.persistObject(gender);
 		gender= new Gender("UD",now,"UNDEFINED");
-		topersist.add(gender);
-		
+		targetDao.persistObject(gender);
+		map.put("Gender", 3L);
 		//AgeGroup
 		AgeGroup jugendlich= new AgeGroup("0-20",now);
+		jugendlich.setLower(0);
+		jugendlich.setUpper(20);
 		AgeGroup jung= new AgeGroup("21-40",now);
-		AgeGroup mittel= new AgeGroup("41.60",now);
+		jung.setLower(21);
+		jung.setUpper(40);
+		AgeGroup mittel= new AgeGroup("41-60",now);
+		mittel.setLower(41);
+		mittel.setUpper(60);
 		AgeGroup alt= new AgeGroup("60+",now);
+		alt.setLower(61);
+		alt.setUpper(200);
+	
 		AgeGroup undefinedAge= new AgeGroup("UNDEFINED",now);
 		targetDao.persistObject(jugendlich);
 		targetDao.persistObject(jung);
 		targetDao.persistObject(mittel);
 		targetDao.persistObject(alt);
 		targetDao.persistObject(undefinedAge);
-		
+		map.put("AgeGroup", 4L);
 		//YearlyIncomeGroup
 		YearlyIncomeGroup low= new YearlyIncomeGroup("L",now,"0-25000");
-		YearlyIncomeGroup middel= new YearlyIncomeGroup("M",now,"25001-50000");
+		YearlyIncomeGroup middel= new YearlyIncomeGroup("M",now,"25001-50000");		
 		YearlyIncomeGroup high= new YearlyIncomeGroup("H",now,"50001-75000");
 		YearlyIncomeGroup veryHigh= new YearlyIncomeGroup("VH",now,"75001-100000");
+		YearlyIncomeGroup excess= new YearlyIncomeGroup("EX",now,"greater than 100000");
 		targetDao.persistObject(low);
 		targetDao.persistObject(middel);
 		targetDao.persistObject(high);
 		targetDao.persistObject(veryHigh);
+		targetDao.persistObject(excess);
+		map.put("YearlyIncomeGroup", 4L);
 		//HomeOwner
 	HomeOwner yes =new HomeOwner("YES", now);
 	HomeOwner no =new HomeOwner("NO", now);
+	targetDao.persistObject(yes);
+	targetDao.persistObject(no);
+	map.put("HomeOwner", 2L);
 		
 		 now =new Timestamp(System.currentTimeMillis());
 		Timestamp init= new Timestamp(0);	
@@ -211,7 +233,10 @@ List<DreiTupel> list = new ArrayList<DreiTupel>();
 	       m.setTo(null);
 	       m.setSourceKey(((Integer) o[0]).longValue());	     
 	     list.add(new DreiTupel(c, s, m));
-	        	}		   	        	
+	    
+	        	}
+	        	 customerCount= customerCount+ list.size();
+	    	     storeCount= storeCount+list.size();
 	        	  this.targetDao.persistListOfEntities(list.stream().map(p->p.getOne()).collect(Collectors.toList()));	
 	  	        for(DreiTupel tupel: list){
 	  	        (( adventureworks.entity.dimensions.customer.Store)tupel.getTwo()).setStoreId(((Customer)tupel.getOne()).getCustomerId());	
@@ -238,6 +263,38 @@ List<DreiTupel> list = new ArrayList<DreiTupel>();
 	     	       c.setToDate(null);
 	        	   adventureworks.entity.dimensions.customer.Individual i = new adventureworks.entity.dimensions.customer.Individual();
 	        	   IndividualSurvey survey =XmlParser.umarshal((String) o[1]);
+	        	   
+	        	 	      	     
+		            LocalDate birthdate = LocalDate.parse(survey.getBirthDate().replaceAll("Z", ""));
+		            LocalDate nowDate = LocalDate.now();		                
+		          int mYear =Period.between(birthdate, nowDate).getYears();
+		          if(mYear>= jung.getLower() && mYear<=jung.getUpper()){
+		        i.setAgeGroupId(jung.getAgeGroupId());	  
+		          }
+		          if(mYear>= jugendlich.getLower() && mYear<=jugendlich.getUpper()){
+				        i.setAgeGroupId(jugendlich.getAgeGroupId());	  
+				          }
+		          if(mYear>= mittel.getLower() && mYear<=mittel.getUpper()){
+				        i.setAgeGroupId(mittel.getAgeGroupId());	  
+				          }
+		          if(mYear>= alt.getLower() && mYear<=alt.getUpper()){
+				        i.setAgeGroupId(alt.getAgeGroupId());	  
+				          }
+		          if(low.getGroupName().equals(survey.getYearlyIncome())){
+		        	  i.setYearlyIncome(low.getIncomeGroupCode());	 
+		          }
+if(middel.getGroupName().equals(survey.getYearlyIncome())){
+		        i.setYearlyIncome(middel.getIncomeGroupCode());	  
+		          }
+if(high.getGroupName().equals(survey.getYearlyIncome())){
+	 i.setYearlyIncome(high.getIncomeGroupCode());	
+}
+if(veryHigh.getGroupName().equals(survey.getYearlyIncome())){
+	 i.setYearlyIncome(veryHigh.getIncomeGroupCode());	 
+}
+if(excess.getGroupName().equals(survey.getYearlyIncome())){
+	 i.setYearlyIncome(excess.getIncomeGroupCode());	 
+}
 	        	   i.setModfiedDate(now);
 		       i.setGender(survey.getGender());
 		       i.setFirstName((String) o[3]);
@@ -253,6 +310,8 @@ List<DreiTupel> list = new ArrayList<DreiTupel>();
 	  	     list.add(new DreiTupel(c, i, m));
 	        	
 	        	}
+	        	 customerCount= customerCount+ list.size();
+	    	    individualCount= individualCount+list.size();
 	        this.targetDao.persistListOfEntities(list.stream().map(p->p.getOne()).collect(Collectors.toList()));	
 	        for(DreiTupel tupel: list){
 	        ((adventureworks.entity.dimensions.customer.Individual)tupel.getTwo()).setIndividualId(((Customer)tupel.getOne()).getCustomerId());	
@@ -265,14 +324,16 @@ List<DreiTupel> list = new ArrayList<DreiTupel>();
 	        	  offset += customers.size();
 		            log.info("Start Block:"+offset);
 		}
-	        
-		
+	map.put("Customer", customerCount);
+	map.put("Store", storeCount);
+	map.put("Individual", individualCount);
+	return map;	
 	}
 	
 
-	public void update() {
+	public HashMap<String, Long> update() {
 	targetDao.getLatestEtlMeta();
-	
+	return new HashMap<>();
 		
 	}
 	

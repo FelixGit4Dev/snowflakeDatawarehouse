@@ -1,6 +1,7 @@
 package adventureworks.transformations;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -41,12 +42,19 @@ private DwhTargetAcess targetDao;
 	 */
 	
 
-	public void update() {
+	public HashMap<String, Long> update() {
+		return new HashMap<>();
 		
 		
 	}
 
-	public void initDimension() {
+	public HashMap<String, Long> initDimension() {
+		HashMap<String, Long> mapCount= new HashMap<>();
+		
+		Long personCount=0L;
+		Long shippingMethodCount=0L;
+		Long salesReasonCount=0L;
+		Long salesReasonTypeCount=0L;
 	Timestamp initialFrom= new Timestamp(0);
 	 Timestamp now =new Timestamp(System.currentTimeMillis());
 	//	SalesChannel Dimensions
@@ -55,6 +63,8 @@ private DwhTargetAcess targetDao;
 	this.targetDao.persistObject(channel );
 	channel= new SalesChannel(initialFrom,null,"DIREKT");
 	channel.setModfiedDate(now);
+	this.targetDao.persistObject(channel );
+	mapCount.put("SalesChannel", 2L);
 	//SalesPerson Dimension
 	 int offset = 0;
 
@@ -70,7 +80,7 @@ private DwhTargetAcess targetDao;
         	 person.setFromDate(initialFrom);
         	 person.setToDate(null);
         		person= this.targetDao.persistSalesPerson(person);
-        		
+        		personCount++;
         		SalesPerson_MAP map= new SalesPerson_MAP(salesPerson.getSalesPersonID(),person.getSalesPersonId(),now,initialFrom,null);
         		this.targetDao.persistSalesPerson_MAP(map); 
          }
@@ -89,6 +99,7 @@ private DwhTargetAcess targetDao;
         now =new Timestamp(System.currentTimeMillis());
         shipping.setModfiedDate(now);
         this.targetDao.persistObject(shipping);
+        shippingMethodCount++;
         ShippingMethod_MAP map= new ShippingMethod_MAP(method.getShipMethodID(), shipping.getShippingMethodId(), now, initialFrom, null);
        targetDao.persistObject(map);
          }
@@ -104,7 +115,9 @@ private DwhTargetAcess targetDao;
 	now =new Timestamp(System.currentTimeMillis());
 	type.setModfiedDate(now);
 	this.targetDao.persistObject(type);
+	salesReasonTypeCount++;
 	 List<Salesreason> salesReasons;
+	 offset=0;
 	 while ((salesReasons = this.sourceDao.getallSalesReasonsByReasonType(reasontype.toString(),offset, Constants.RESULTSETSIZE)).size() > 0)
      {
     
@@ -113,12 +126,19 @@ private DwhTargetAcess targetDao;
         SalesReason reasonTarget= new SalesReason(type.getSalesReasonTypeId(),initialFrom,null,method.getName());
         now =new Timestamp(System.currentTimeMillis());
 reasonTarget.setModfiedDate(now);
+reasonTarget.setSalesReasonTypeId(type.getSalesReasonTypeId());
         targetDao.persistObject(reasonTarget);
+        salesReasonCount++;
         SalesReason_MAP map= new SalesReason_MAP(method.getSalesReasonID(),reasonTarget.getSalesReasonId(),now,initialFrom,null);
           }
          offset += salesReasons.size();
      } 
    }
+   mapCount.put("SalesPerson", personCount);
+   mapCount.put("ShippingMethod", shippingMethodCount);
+   mapCount.put("SalesReason", salesReasonCount);
+   mapCount.put("SalesReasonType", salesReasonTypeCount);
+   return mapCount;
 	}
 
 }

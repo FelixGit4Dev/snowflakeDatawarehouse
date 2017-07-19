@@ -15,6 +15,9 @@ public class YearlyIncomeGroup {
 
 	@Id
 	private String incomeGroupCode;
+	
+	private int lower;
+	private int upper;
 	public String getIncomeGroupCode() {
 		return incomeGroupCode;
 	}
@@ -56,6 +59,22 @@ public class YearlyIncomeGroup {
 		this.incomeGroupCode = incomeGroupCode;
 		this.modfiedDate = modfiedDate;
 		this.groupName = groupName;
+	}
+
+	public int getLower() {
+		return lower;
+	}
+
+	public void setLower(int lower) {
+		this.lower = lower;
+	}
+
+	public int getUpper() {
+		return upper;
+	}
+
+	public void setUpper(int upper) {
+		this.upper = upper;
 	}
 
 	

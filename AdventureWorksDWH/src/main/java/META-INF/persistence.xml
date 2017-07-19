@@ -3,7 +3,7 @@
         <persistence-unit name="dwhTarget" transaction-type="JTA">
          <exclude-unlisted-classes>true</exclude-unlisted-classes>
           <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
-  <jta-data-source>java:jboss/datasources/DwhTarget</jta-data-source>
+  <jta-data-source>java:jboss/datasources/DwhTargetOlap</jta-data-source>
               <class>adventureworks.entity.EtlMetaInformation</class>
               <class>adventureworks.entity.StagingTable</class>
               <class>adventureworks.entity.dimensions.customer.AgeGroup</class>
@@ -43,10 +43,13 @@
             <class>adventureworks.entity.maps.SalesPerson_MAP</class>
             <class>adventureworks.entity.maps.SalesReason_MAP</class>
             <class>adventureworks.entity.maps.ShippingMethod_MAP</class>
+            <class>adventureworks.entity.maps.SpecialOffer_MAP</class>
             <class>adventureworks.entity.maps.State_MAP</class>
             <class>adventureworks.entity.maps.Store_MAP</class>
             <class>adventureworks.entity.maps.Subcategory_MAP</class>
             <class>adventureworks.entity.maps.Territory_MAP</class>
+            <class>adventureworks.entity.other.SalesTaxrate</class>
+            <class>adventureworks.entity.other.SpecialOffer</class>
         <properties>
  <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" />
 <!--             <property name="hibernate.show_sql" value="true" /> -->

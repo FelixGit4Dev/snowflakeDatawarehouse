@@ -8,6 +8,7 @@
 	<class>visualization.entity.entityDwh.Category</class>
      	<class>visualization.entity.entityDwh.City</class>
      	<class>visualization.entity.entityDwh.Country</class>
+     	<class>visualization.entity.entityDwh.EtlMetaInformation</class>
      	<class>visualization.entity.entityDwh.Product</class>
      	<class>visualization.entity.entityDwh.SalesPerson</class>
      	<class>visualization.entity.entityDwh.SalesReason</class>

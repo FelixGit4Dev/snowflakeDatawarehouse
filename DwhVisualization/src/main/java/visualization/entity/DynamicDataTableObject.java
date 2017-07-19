@@ -1,16 +1,17 @@
 package visualization.entity;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 
 public class DynamicDataTableObject {
 
-	private HashMap<String, Object> map;
+	private LinkedHashMap<String, Object> map;
 
-	public HashMap<String, Object> getMap() {
+	public LinkedHashMap<String, Object> getMap() {
 		return map;
 	}
 
-	public void setMap(HashMap<String, Object> map) {
+	public void setMap(LinkedHashMap<String, Object> map) {
 		this.map = map;
 	}
 

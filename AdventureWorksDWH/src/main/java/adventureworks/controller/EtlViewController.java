@@ -3,6 +3,7 @@ package adventureworks.controller;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import javax.enterprise.context.SessionScoped;
@@ -12,6 +13,8 @@ import javax.inject.Named;
 
 import org.apache.log4j.Logger;
 import org.primefaces.context.RequestContext;
+
+import com.mysql.fabric.HashShardMapping;
 
 import adventureworks.DAO.DwhTargetAcess;
 import adventureworks.Util.TimeUtil;
@@ -36,7 +39,8 @@ public class EtlViewController implements Serializable{
 
 	@Inject
 	private DwhTargetAcess targetDao;
-@Inject EtlJob job;
+@Inject 
+private EtlJob job;
 	
 
 private String message; 
@@ -72,62 +76,83 @@ private String message;
 		@Inject 
 		private TransferNecessaryTables transferTables;
 
-		public void execute()  {
-		if(job.isRunning()){
-		log.info("An ETL-Job is running already, no new Job will be started try again after current Job has terminated");	
-		}else{	
+		private Timestamp runTime;
+
+		
+		
+		
+		
+	public void execute() {
+		if (job.isRunning()) {
+			log.info(
+					"An ETL-Job is running already, no new Job will be started try again after current Job has terminated");
+		} else {
 			job.setRunning(true);
 			FacesContext.getCurrentInstance().getPartialViewContext().getRenderIds().add("controlForm");
 			log.info("Beginning ETL Job: " + new Date());
-			Date start = new  Date();
-		EtlMetaInformation meta = new EtlMetaInformation();
-		Timestamp runTime= new  Timestamp(System.currentTimeMillis());
-		meta.setEtlJobRun_Date(runTime);
-		
-		log.info("Started synchronising Dimensions: " + new Date());
-		this.synchronizeDimensions();
-		log.info("Finished synchronising Dimensions: " + new Date());
-		log.info("Started transferring OperationalData to Fact-Table: " + new Date());
-		this.transformOperationalData();
-		log.info("Finished transferring OperationalData to Fact-Table: " + new Date());
-		log.info("Start Tranferring Tables necessary for Measure computation: "+ new Date());
-		this.transferTables.transferTablesForMeasureComputation();
-		log.info("Finished Tranferring Tables necessary for Measure computation: "+ new Date());
-		
-		Date end = new  Date();
-		long duration= end.getTime()-start.getTime();
-		meta.setDuration(TimeUtil.formatDuration(duration));
-		this.targetDao.persistObject(meta);
-			
-		log.info("Finished ETL Job: " + new Date());
-			
-		job.setRunning(false);
-		RequestContext.getCurrentInstance().update("controlForm");
-		}	
-		}
-		
-		
-		public void synchronizeDimensions(){
+			runTime = new Timestamp(System.currentTimeMillis());
 
+			log.info("Started synchronising Dimensions: " + new Date());
+			HashMap<String, Long> dimCounter = this.synchronizeDimensions();
+			log.info("Finished synchronising Dimensions: " + new Date());
+
+			log.info("Start Tranferring Tables necessary for Measure computation: " + new Date());
+			this.transferTablesNecessaryforComputations();
+			log.info("Finished Tranferring Tables necessary for Measure computation: " + new Date());
+
+			log.info("Started transferring OperationalData to Fact-Table: " + new Date());
+			HashMap<String, Long> factCounter = this.transformOperationalData();
+			log.info("Finished transferring OperationalData to Fact-Table: " + new Date());
+
+			EtlMetaInformation meta = createEtlMetaInformation(dimCounter, factCounter);
+			this.targetDao.persistObject(meta);
+
+			log.info("Finished ETL Job: " + new Date());
+
+			job.setRunning(false);
+		}
+	}
+		
+		private EtlMetaInformation createEtlMetaInformation(HashMap<String, Long> dimCounter, HashMap<String, Long> factCounter) {
+			EtlMetaInformation meta = new EtlMetaInformation();
+			meta.setEtlJobRun_Date(runTime);
+			String dimensions= "";
+			String vorlage=" %s(%s) ";
+			for(String key: dimCounter.keySet()){
+			dimensions=dimensions+String.format(vorlage, key,dimCounter.get(key));	
+			}
+			
+			Date end = new  Date();
+			long duration= end.getTime()-runTime.getTime();
+			meta.setChangedDimensions(dimensions);
+			meta.setDuration(TimeUtil.formatDuration(duration));
+			meta.setTransferredFacts(factCounter.get("Fact"));	
+			return meta; 
+		}
+
+
+
+		public HashMap<String, Long> synchronizeDimensions(){
+			HashMap<String, Long> map = new HashMap<String, Long>();
 		if(targetDao.initialImport()){
 			log.info("	Started initializing Customer Dimensions: " + new Date());
-			customerTransformation.initDimension();
+			map.putAll(customerTransformation.initDimension());
 			log.info("	Started finished Customer Dimensions: " + new Date());
 		log.info("	Started initializing Product Dimension: " + new Date());
-		productTransformation.initDimension();
+		map.putAll(productTransformation.initDimension());
 		log.info("	Finished initializing Product Dimension: " + new Date());
 		
 		log.info("	Started initializing Sales Dimensions: " + new Date());
-		salesTransformations.initDimension();
+		map.putAll(salesTransformations.initDimension());
 		log.info("	Finished initializing Sales Dimensions: " + new Date());
 		log.info("	Started initializing Place Dimensions: " + new Date());
-		placeTransformation.initDimension();
+		map.putAll(placeTransformation.initDimension());
 		log.info("	Finished initializing Place Dimensions: " + new Date());	
 		
 		log.info("	Started initializing Time Dimension: " + new Date());
-		timeDimensionTransformations.initDimension();
+		map.putAll(timeDimensionTransformations.initDimension());
 		log.info("	Finished initializing Time Dimension: " + new Date());
-		
+		return map;
 		}
 		else{
 		//placeTransformation.update();
@@ -135,6 +160,7 @@ private String message;
 			//productTransformation.update();
 			//salesTransformations.update();
 			//timeDimensionTransformations.update();	
+			return new HashMap<String,Long>();
 		}
 		}
 		
@@ -143,12 +169,14 @@ private String message;
 		}
 		
 
-		public void transformOperationalData(){
+		public HashMap<String,Long> transformOperationalData(){
+			HashMap<String,Long> l=new HashMap<>();
 			if(targetDao.initialImport()){	
-			factTransformation.initDimension();
+			l=factTransformation.initDimension();
 			}else{
-			factTransformation.update();	
+				 l =factTransformation.update();	
 			}
+			return l;
 		}
 		
 		public void loadOperationalData(){
@@ -161,6 +189,14 @@ private String message;
 		}
 
 
+		public void transferTablesNecessaryforComputations(){
+			if(this.targetDao.initialImport()){
+			this.transferTables.initDimension();	
+			}
+			else{
+			this.transferTables.update();	
+			}
+			}
 
 		public String getMessage() {
 			if(job.isRunning()){
@@ -174,6 +210,18 @@ private String message;
 
 		public void setMessage(String message) {
 			this.message = message;
+		}
+
+
+
+		public Timestamp getRunTime() {
+			return runTime;
+		}
+
+
+
+		public void setRunTime(Timestamp runTime) {
+			this.runTime = runTime;
 		}
 
 	
